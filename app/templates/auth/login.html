@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Connexion - ImmoPilot{% endblock %}
+
+{% block content %}
+<div class="login-page">
+    <div class="login-box">
+        <div class="login-logo">
+            <a href="{{ url_for('main.index') }}">
+                <b>Immo</b>Pilot
+            </a>
+        </div>
+        
+        <div class="card">
+            <div class="card-body login-card-body">
+                <p class="login-box-msg">Connectez-vous pour accéder à votre espace</p>
+                
+                <form method="POST" action="{{ url_for('auth.login') }}">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="input-group mb-3">
+                        {{ form.email(class="form-control", placeholder="Email") }}
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <span class="fas fa-envelope"></span>
+                            </div>
+                        </div>
+                        {% if form.email.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.email.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="input-group mb-3">
+                        {{ form.password(class="form-control", placeholder="Mot de passe") }}
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <span class="fas fa-lock"></span>
+                            </div>
+                        </div>
+                        {% if form.password.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.password.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-8">
+                            <div class="icheck-primary">
+                                {{ form.remember_me() }}
+                                {{ form.remember_me.label() }}
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <button type="submit" class="btn btn-primary btn-block">
+                                Se connecter
+                            </button>
+                        </div>
+                    </div>
+                </form>
+                
+                <p class="mb-1">
+                    <a href="{{ url_for('main.contact') }}">Besoin d'aide ?</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+.login-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-box {
+    width: 360px;
+    margin: 0 auto;
+}
+
+.login-logo a {
+    color: white;
+    font-size: 2rem;
+    text-decoration: none;
+    text-align: center;
+    display: block;
+    margin-bottom: 2rem;
+}
+
+.login-card-body {
+    padding: 2rem;
+}
+
+.input-group-text {
+    background-color: #f8f9fa;
+    border-color: #ced4da;
+}
+</style>
+{% endblock %} 

@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Mon Profil - ImmoPilot{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active">Mon Profil</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Informations du profil</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Nom :</strong> {{ current_user.nom }}</p>
+                        <p><strong>Prénom :</strong> {{ current_user.prenom }}</p>
+                        <p><strong>Email :</strong> {{ current_user.email }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Téléphone :</strong> {{ current_user.telephone or 'Non renseigné' }}</p>
+                        <p><strong>Statut :</strong> 
+                            {% if current_user.is_active %}
+                                <span class="badge badge-success">Actif</span>
+                            {% else %}
+                                <span class="badge badge-danger">Inactif</span>
+                            {% endif %}
+                        </p>
+                        <p><strong>Rôle :</strong> 
+                            {% if current_user.is_admin %}
+                                <span class="badge badge-primary">Administrateur</span>
+                            {% else %}
+                                <span class="badge badge-info">Agent</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="mt-3">
+                    <p><strong>Date de création :</strong> {{ current_user.date_creation.strftime('%d/%m/%Y à %H:%M') }}</p>
+                    {% if current_user.derniere_connexion %}
+                        <p><strong>Dernière connexion :</strong> {{ current_user.derniere_connexion.strftime('%d/%m/%Y à %H:%M') }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="mt-4">
+                    <a href="{{ url_for('auth.change_password') }}" class="btn btn-warning">
+                        <i class="fas fa-key"></i> Changer le mot de passe
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Actions rapides</h3>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    <a href="{{ url_for('biens.ajouter') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-plus"></i> Ajouter un bien
+                    </a>
+                    <a href="{{ url_for('clients.ajouter') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-user-plus"></i> Ajouter un client
+                    </a>
+                    <a href="{{ url_for('contrats.ajouter') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-file-contract"></i> Nouveau contrat
+                    </a>
+                    {% if current_user.is_admin %}
+                                            <a href="{{ url_for('admin_bp.dashboard') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-cogs"></i> Administration
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

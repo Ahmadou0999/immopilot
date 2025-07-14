@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block title %}Gestion des agents - ImmoPilot{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{{ url_for('admin_bp.dashboard') }}">Administration</a></li>
+<li class="breadcrumb-item active">Gestion des agents</li>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">
+            <i class="fas fa-user-shield"></i>
+            Gestion des agents ({{ agents|length }})
+        </h3>
+        <div class="card-tools">
+            <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus"></i> Ajouter un agent
+            </a>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Nom complet</th>
+                        <th>Email</th>
+                        <th>Téléphone</th>
+                        <th>Statut</th>
+                        <th>Rôle</th>
+                        <th>Dernière connexion</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for agent in agents %}
+                    <tr>
+                        <td>
+                            <strong>{{ agent.get_full_name() }}</strong>
+                            {% if agent.id == current_user.id %}
+                                <span class="badge badge-info">Vous</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ agent.email }}</td>
+                        <td>{{ agent.telephone or 'Non renseigné' }}</td>
+                        <td>
+                            {% if agent.is_active %}
+                                <span class="badge badge-success">Actif</span>
+                            {% else %}
+                                <span class="badge badge-danger">Inactif</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if agent.is_admin %}
+                                <span class="badge badge-primary">Administrateur</span>
+                            {% else %}
+                                <span class="badge badge-secondary">Agent</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if agent.derniere_connexion %}
+                                {{ agent.derniere_connexion.strftime('%d/%m/%Y %H:%M') }}
+                            {% else %}
+                                <span class="text-muted">Jamais connecté</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                {% if agent.id != current_user.id %}
+                                    {% if agent.is_active %}
+                                        <form method="POST" action="{{ url_for('admin_bp.desactiver_agent', agent_id=agent.id) }}" style="display: inline;">
+                                            <button type="submit" class="btn btn-sm btn-warning" 
+                                                    onclick="return confirm('Désactiver cet agent ?')">
+                                                <i class="fas fa-user-slash"></i>
+                                            </button>
+                                        </form>
+                                    {% else %}
+                                        <form method="POST" action="{{ url_for('admin_bp.activer_agent', agent_id=agent.id) }}" style="display: inline;">
+                                            <button type="submit" class="btn btn-sm btn-success">
+                                                <i class="fas fa-user-check"></i>
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                    
+                                    {% if agent.is_admin %}
+                                        <form method="POST" action="{{ url_for('admin_bp.retirer_admin', agent_id=agent.id) }}" style="display: inline;">
+                                            <button type="submit" class="btn btn-sm btn-secondary" 
+                                                    onclick="return confirm('Retirer les droits administrateur ?')">
+                                                <i class="fas fa-user-minus"></i>
+                                            </button>
+                                        </form>
+                                    {% else %}
+                                        <form method="POST" action="{{ url_for('admin_bp.promouvoir_admin', agent_id=agent.id) }}" style="display: inline;">
+                                            <button type="submit" class="btn btn-sm btn-primary" 
+                                                    onclick="return confirm('Promouvoir en administrateur ?')">
+                                                <i class="fas fa-user-plus"></i>
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-muted">Actions non disponibles</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Statistiques des agents -->
+<div class="row mt-4">
+    <div class="col-md-3">
+        <div class="info-box">
+            <span class="info-box-icon bg-info"><i class="fas fa-users"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">Total agents</span>
+                <span class="info-box-number">{{ agents|length }}</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="info-box">
+            <span class="info-box-icon bg-success"><i class="fas fa-user-check"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">Agents actifs</span>
+                <span class="info-box-number">{{ agents|selectattr('is_active')|list|length }}</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="info-box">
+            <span class="info-box-icon bg-primary"><i class="fas fa-user-shield"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">Administrateurs</span>
+                <span class="info-box-number">{{ agents|selectattr('is_admin')|list|length }}</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="info-box">
+            <span class="info-box-icon bg-warning"><i class="fas fa-user-clock"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">Connectés aujourd'hui</span>
+                <span class="info-box-number">
+                    {{ agents_connectes_aujourdhui|length }}
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

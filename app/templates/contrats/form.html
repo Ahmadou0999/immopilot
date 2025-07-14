@@ -1,0 +1,324 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - ImmoPilot{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{{ url_for('contrats.index') }}">Contrats</a></li>
+<li class="breadcrumb-item active">{{ title }}</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-file-contract mr-2"></i>
+                    {{ title }}
+                </h3>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                {{ form.numero.label(class="form-label") }}
+                                {{ form.numero(class="form-control" + (" is-invalid" if form.numero.errors else "")) }}
+                                {% if form.numero.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.numero.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                {{ form.type_contrat.label(class="form-label") }}
+                                {{ form.type_contrat(class="form-control" + (" is-invalid" if form.type_contrat.errors else "")) }}
+                                {% if form.type_contrat.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.type_contrat.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label class="form-label">Client *</label>
+                                <select name="client_id" class="form-control" required>
+                                    <option value="">Sélectionner un client</option>
+                                    {% for client in clients %}
+                                    <option value="{{ client.id }}" 
+                                            {% if contrat and contrat.client_id == client.id %}selected{% endif %}
+                                            {% if request.args.get('client_id')|int == client.id %}selected{% endif %}>
+                                        {{ client.get_full_name() }} - {{ client.email }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label class="form-label">Bien *</label>
+                                <select name="bien_id" class="form-control" required>
+                                    <option value="">Sélectionner un bien</option>
+                                    {% for bien in biens %}
+                                    <option value="{{ bien.id }}" 
+                                            {% if contrat and contrat.bien_id == bien.id %}selected{% endif %}>
+                                        {{ bien.reference }} - {{ bien.titre }} ({{ bien.ville }})
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                {{ form.montant.label(class="form-label") }}
+                                {{ form.montant(class="form-control" + (" is-invalid" if form.montant.errors else "")) }}
+                                {% if form.montant.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.montant.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                {{ form.frais_agence.label(class="form-label") }}
+                                {{ form.frais_agence(class="form-control" + (" is-invalid" if form.frais_agence.errors else "")) }}
+                                {% if form.frais_agence.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.frais_agence.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                {{ form.charges.label(class="form-label") }}
+                                {{ form.charges(class="form-control" + (" is-invalid" if form.charges.errors else "")) }}
+                                {% if form.charges.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.charges.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                {{ form.caution.label(class="form-label") }}
+                                {{ form.caution(class="form-control" + (" is-invalid" if form.caution.errors else "")) }}
+                                {% if form.caution.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.caution.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group mb-3">
+                                {{ form.date_entree.label(class="form-label") }}
+                                {{ form.date_entree(class="form-control" + (" is-invalid" if form.date_entree.errors else "")) }}
+                                {% if form.date_entree.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.date_entree.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="form-group mb-3">
+                                {{ form.date_sortie.label(class="form-label") }}
+                                {{ form.date_sortie(class="form-control" + (" is-invalid" if form.date_sortie.errors else "")) }}
+                                {% if form.date_sortie.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.date_sortie.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="form-group mb-3">
+                                {{ form.date_fin_bail.label(class="form-label") }}
+                                {{ form.date_fin_bail(class="form-control" + (" is-invalid" if form.date_fin_bail.errors else "")) }}
+                                {% if form.date_fin_bail.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.date_fin_bail.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                {{ form.duree_bail.label(class="form-label") }}
+                                {{ form.duree_bail(class="form-control" + (" is-invalid" if form.duree_bail.errors else "")) }}
+                                {% if form.duree_bail.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.duree_bail.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        {{ form.conditions_particulieres.label(class="form-label") }}
+                        {{ form.conditions_particulieres(class="form-control" + (" is-invalid" if form.conditions_particulieres.errors else ""), rows=4) }}
+                        {% if form.conditions_particulieres.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.conditions_particulieres.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        {{ form.notes.label(class="form-label") }}
+                        {{ form.notes(class="form-control" + (" is-invalid" if form.notes.errors else ""), rows=3) }}
+                        {% if form.notes.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.notes.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save mr-2"></i>
+                            {{ 'Modifier' if contrat else 'Créer' }} le contrat
+                        </button>
+                        <a href="{{ url_for('contrats.index') }}" class="btn btn-secondary">
+                            <i class="fas fa-times mr-2"></i>
+                            Annuler
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    Informations
+                </h3>
+            </div>
+            <div class="card-body">
+                <h6>Champs obligatoires</h6>
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-asterisk text-danger mr-1"></i> Numéro du contrat</li>
+                    <li><i class="fas fa-asterisk text-danger mr-1"></i> Type de contrat</li>
+                    <li><i class="fas fa-asterisk text-danger mr-1"></i> Client</li>
+                    <li><i class="fas fa-asterisk text-danger mr-1"></i> Bien</li>
+                    <li><i class="fas fa-asterisk text-danger mr-1"></i> Montant</li>
+                </ul>
+                
+                <hr>
+                
+                <h6>Types de contrat</h6>
+                <ul class="list-unstyled">
+                    <li><strong>Vente :</strong> Contrat de vente immobilière</li>
+                    <li><strong>Location :</strong> Contrat de location</li>
+                </ul>
+                
+                <hr>
+                
+                <h6>Conseils</h6>
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-lightbulb text-warning mr-1"></i> Remplissez tous les champs obligatoires</li>
+                    <li><i class="fas fa-lightbulb text-warning mr-1"></i> Vérifiez les dates avant validation</li>
+                    <li><i class="fas fa-lightbulb text-warning mr-1"></i> Ajoutez des notes si nécessaire</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Auto-remplissage du numéro de contrat
+document.addEventListener('DOMContentLoaded', function() {
+    const numeroField = document.getElementById('numero');
+    if (numeroField && !numeroField.value) {
+        // Générer un numéro automatique
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+        numeroField.value = `CTR-${year}${month}${day}-${random}`;
+    }
+    
+    // Auto-remplissage de la date de fin de bail pour les locations
+    const typeContratField = document.getElementById('type_contrat');
+    const dateEntreeField = document.getElementById('date_entree');
+    const dateFinBailField = document.getElementById('date_fin_bail');
+    const dureeBailField = document.getElementById('duree_bail');
+    
+    if (typeContratField && dateEntreeField && dateFinBailField && dureeBailField) {
+        function updateDateFinBail() {
+            if (typeContratField.value === 'location' && dateEntreeField.value && dureeBailField.value) {
+                const dateEntree = new Date(dateEntreeField.value);
+                const duree = parseInt(dureeBailField.value);
+                const dateFin = new Date(dateEntree);
+                dateFin.setMonth(dateFin.getMonth() + duree);
+                dateFinBailField.value = dateFin.toISOString().split('T')[0];
+            }
+        }
+        
+        dateEntreeField.addEventListener('change', updateDateFinBail);
+        dureeBailField.addEventListener('change', updateDateFinBail);
+        typeContratField.addEventListener('change', updateDateFinBail);
+    }
+});
+</script>
+{% endblock %} 

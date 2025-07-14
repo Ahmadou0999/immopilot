@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+
+{% block title %}Gestion des visites - ImmoPilot{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{{ url_for('admin_bp.dashboard') }}">Administration</a></li>
+<li class="breadcrumb-item active">Gestion des visites</li>
+{% endblock %}
+
+{% block content %}
+<!-- Filtres -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label">Statut</label>
+                <select name="statut" class="form-select">
+                    <option value="">Tous les statuts</option>
+                    <option value="en_attente" {{ 'selected' if request.args.get('statut') == 'en_attente' }}>En attente</option>
+                    <option value="confirmee" {{ 'selected' if request.args.get('statut') == 'confirmee' }}>Confirmée</option>
+                    <option value="annulee" {{ 'selected' if request.args.get('statut') == 'annulee' }}>Annulée</option>
+                    <option value="terminee" {{ 'selected' if request.args.get('statut') == 'terminee' }}>Terminée</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Actions</label>
+                <div>
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <i class="fas fa-filter"></i> Filtrer
+                    </button>
+                    <a href="{{ url_for('admin_bp.visites') }}" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-times"></i> Réinitialiser
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Liste des demandes -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">
+            <i class="fas fa-calendar-check"></i>
+            Demandes de visite ({{ demandes.total }})
+        </h3>
+    </div>
+    <div class="card-body p-0">
+        {% if demandes.items %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Contact</th>
+                        <th>Bien</th>
+                        <th>Date souhaitée</th>
+                        <th>Statut</th>
+                        <th>Agent assigné</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for demande in demandes.items %}
+                    <tr>
+                        <td>
+                            <strong>{{ demande.nom_contact }}</strong><br>
+                            <small>{{ demande.telephone_contact }}</small>
+                            {% if demande.email_contact %}
+                            <br><small>{{ demande.email_contact }}</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if demande.bien %}
+                                <strong>{{ demande.bien.titre }}</strong><br>
+                                <small>{{ demande.bien.get_full_address() }}</small>
+                            {% else %}
+                                <span class="text-muted">Bien supprimé</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{ demande.get_date_display() }}<br>
+                            <small>{{ demande.get_heure_display() }}</small>
+                            {% if demande.is_past_due() and demande.statut.value == 'en_attente' %}
+                            <br><span class="badge badge-danger">En retard</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge {{ demande.get_status_badge_class() }}">
+                                {{ demande.statut.value.title() }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if demande.agent %}
+                                {{ demande.agent.get_full_name() }}
+                            {% else %}
+                                <span class="text-muted">Non assigné</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                {% if demande.statut.value == 'en_attente' %}
+                                    <button type="button" class="btn btn-sm btn-success" 
+                                            data-toggle="modal" data-target="#confirmerModal{{ demande.id }}">
+                                        <i class="fas fa-check"></i> Confirmer
+                                    </button>
+                                    <form method="POST" action="{{ url_for('admin_bp.annuler_visite', demande_id=demande.id) }}" style="display: inline;">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                        <button type="submit" class="btn btn-sm btn-danger" 
+                                                onclick="return confirm('Annuler cette demande ?')">
+                                            <i class="fas fa-times"></i> Annuler
+                                        </button>
+                                    </form>
+                                {% elif demande.statut.value == 'confirmee' %}
+                                    <form method="POST" action="{{ url_for('admin_bp.terminer_visite', demande_id=demande.id) }}" style="display: inline;">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                        <button type="submit" class="btn btn-sm btn-info">
+                                            <i class="fas fa-check-double"></i> Terminer
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Modal de confirmation -->
+                            {% if demande.statut.value == 'en_attente' %}
+                            <div class="modal fade" id="confirmerModal{{ demande.id }}" tabindex="-1">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Confirmer la visite</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <form method="POST" action="{{ url_for('admin_bp.confirmer_visite', demande_id=demande.id) }}">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                            <div class="modal-body">
+                                                <p>Confirmer la visite pour <strong>{{ demande.nom_contact }}</strong> ?</p>
+                                                <div class="form-group">
+                                                    <label class="form-label">Durée estimée (minutes)</label>
+                                                    <input type="number" name="duree" class="form-control" value="60" min="15" max="180">
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                                <button type="submit" class="btn btn-success">Confirmer</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        {% if demandes.pages > 1 %}
+        <div class="card-footer">
+            <nav aria-label="Pagination des demandes">
+                <ul class="pagination justify-content-center mb-0">
+                    {% if demandes.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('admin_bp.visites', page=demandes.prev_num, statut=request.args.get('statut', '')) }}">Précédent</a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for page_num in demandes.iter_pages() %}
+                        {% if page_num %}
+                            {% if page_num != demandes.page %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('admin_bp.visites', page=page_num, statut=request.args.get('statut', '')) }}">{{ page_num }}</a>
+                            </li>
+                            {% else %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ page_num }}</span>
+                            </li>
+                            {% endif %}
+                        {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if demandes.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('admin_bp.visites', page=demandes.next_num, statut=request.args.get('statut', '')) }}">Suivant</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+        
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+            <h5>Aucune demande trouvée</h5>
+            <p class="text-muted">Aucune demande de visite ne correspond aux critères sélectionnés.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+
+{% block title %}Demande de visite - {{ client.get_full_name() }}{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Demande de visite</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}">Accueil</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('clients.index') }}">Clients</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('clients.detail', client_id=client.id) }}">{{ client.get_full_name() }}</a></li>
+                    <li class="breadcrumb-item active">Demande de visite</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-calendar-plus mr-2"></i>
+                            Demander une visite
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            <h5><i class="fas fa-user mr-2"></i>{{ client.get_full_name() }}</h5>
+                            <p class="mb-1"><strong>Email:</strong> {{ client.email }}</p>
+                            <p class="mb-1"><strong>Téléphone:</strong> {{ client.telephone }}</p>
+                            {% if bien %}
+                            <hr>
+                            <h6><i class="fas fa-home mr-2"></i>{{ bien.titre }}</h6>
+                            <p class="mb-1"><strong>Référence:</strong> {{ bien.reference }}</p>
+                            <p class="mb-1"><strong>Localisation:</strong> {{ bien.ville }}, {{ bien.code_postal }}</p>
+                            <p class="mb-0"><strong>Prix:</strong> {{ bien.get_price_display() }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <form method="POST">
+                            {{ form.hidden_tag() }}
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ form.date_souhaitee.label(class="form-label") }}
+                                        {{ form.date_souhaitee(class="form-control", required=true) }}
+                                        {% if form.date_souhaitee.errors %}
+                                            <div class="text-danger">
+                                                {% for error in form.date_souhaitee.errors %}
+                                                    <small>{{ error }}</small>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ form.heure_souhaitee.label(class="form-label") }}
+                                        {{ form.heure_souhaitee(class="form-control", required=true) }}
+                                        {% if form.heure_souhaitee.errors %}
+                                            <div class="text-danger">
+                                                {% for error in form.heure_souhaitee.errors %}
+                                                    <small>{{ error }}</small>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ form.nombre_personnes.label(class="form-label") }}
+                                        {{ form.nombre_personnes(class="form-control") }}
+                                        {% if form.nombre_personnes.errors %}
+                                            <div class="text-danger">
+                                                {% for error in form.nombre_personnes.errors %}
+                                                    <small>{{ error }}</small>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ form.motivation.label(class="form-label") }}
+                                        {{ form.motivation(class="form-control", required=true) }}
+                                        {% if form.motivation.errors %}
+                                            <div class="text-danger">
+                                                {% for error in form.motivation.errors %}
+                                                    <small>{{ error }}</small>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                {{ form.commentaires.label(class="form-label") }}
+                                {{ form.commentaires(class="form-control", rows=4) }}
+                                {% if form.commentaires.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.commentaires.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-paper-plane mr-2"></i>
+                                    Envoyer la demande
+                                </button>
+                                <a href="{{ url_for('clients.detail', client_id=client.id) }}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left mr-2"></i>
+                                    Retour au client
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-info-circle mr-2"></i>
+                            Informations client
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Nom complet:</strong> {{ client.get_full_name() }}</p>
+                        <p><strong>Email:</strong> {{ client.email }}</p>
+                        <p><strong>Téléphone:</strong> {{ client.telephone }}</p>
+                        {% if client.profession %}
+                        <p><strong>Profession:</strong> {{ client.profession }}</p>
+                        {% endif %}
+                        {% if client.ville %}
+                        <p><strong>Localisation:</strong> {{ client.ville }}{% if client.code_postal %}, {{ client.code_postal }}{% endif %}</p>
+                        {% endif %}
+                        {% if client.budget_min or client.budget_max %}
+                        <p><strong>Budget:</strong> 
+                            {% if client.budget_min and client.budget_max %}
+                                {{ "{:,.0f}".format(client.budget_min) }} FCFA - {{ "{:,.0f}".format(client.budget_max) }} FCFA
+                            {% elif client.budget_min %}
+                                À partir de {{ "{:,.0f}".format(client.budget_min) }} FCFA
+                            {% elif client.budget_max %}
+                                Jusqu'à {{ "{:,.0f}".format(client.budget_max) }} FCFA
+                            {% endif %}
+                        </p>
+                        {% endif %}
+                        {% if client.preferences %}
+                        <p><strong>Préférences:</strong> {{ client.preferences[:100] }}{% if client.preferences|length > 100 %}...{% endif %}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                {% if bien %}
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-home mr-2"></i>
+                            Informations bien
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Titre:</strong> {{ bien.titre }}</p>
+                        <p><strong>Référence:</strong> {{ bien.reference }}</p>
+                        <p><strong>Type:</strong> {{ bien.type_bien.value.title() }}</p>
+                        <p><strong>Transaction:</strong> {{ bien.type_transaction.value.title() }}</p>
+                        <p><strong>Surface:</strong> {{ bien.get_surface_display() }}</p>
+                        <p><strong>Pièces:</strong> {{ bien.get_rooms_display() }}</p>
+                        <p><strong>Prix:</strong> {{ bien.get_price_display() }}</p>
+                        <p><strong>Localisation:</strong> {{ bien.ville }}, {{ bien.code_postal }}</p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %} 

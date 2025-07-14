@@ -1,0 +1,266 @@
+{% extends "base.html" %}
+
+{% block title %}Administration - ImmoPilot{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active">Administration</li>
+{% endblock %}
+
+{% block content %}
+<!-- Statistiques -->
+<div class="row">
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-info">
+            <div class="inner">
+                <h3>{{ stats_biens.total }}</h3>
+                <p>Biens immobiliers</p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-home"></i>
+            </div>
+            <a href="{{ url_for('biens.index') }}" class="small-box-footer">
+                Voir tous les biens <i class="fas fa-arrow-circle-right"></i>
+            </a>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-success">
+            <div class="inner">
+                <h3>{{ stats_clients.total }}</h3>
+                <p>Clients</p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <a href="{{ url_for('clients.index') }}" class="small-box-footer">
+                Voir tous les clients <i class="fas fa-arrow-circle-right"></i>
+            </a>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-warning">
+            <div class="inner">
+                <h3>{{ stats_contrats.total }}</h3>
+                <p>Contrats</p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-file-contract"></i>
+            </div>
+            <a href="{{ url_for('contrats.index') }}" class="small-box-footer">
+                Voir tous les contrats <i class="fas fa-arrow-circle-right"></i>
+            </a>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-danger">
+            <div class="inner">
+                <h3>{{ stats_agents.total }}</h3>
+                <p>Agents</p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-user-shield"></i>
+            </div>
+                                        <a href="{{ url_for('admin_bp.agents') }}" class="small-box-footer">
+                Gérer les agents <i class="fas fa-arrow-circle-right"></i>
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Demandes en attente -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-clock text-warning"></i>
+                    Demandes en attente ({{ demandes_en_attente|length }})
+                </h3>
+            </div>
+            <div class="card-body p-0">
+                {% if demandes_en_attente %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Contact</th>
+                                <th>Bien</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for demande in demandes_en_attente[:5] %}
+                            <tr>
+                                <td>
+                                    <strong>{{ demande.nom_contact }}</strong><br>
+                                    <small>{{ demande.telephone_contact }}</small>
+                                </td>
+                                <td>{{ demande.bien.titre if demande.bien else 'Bien supprimé' }}</td>
+                                <td>{{ demande.get_date_display() }} à {{ demande.get_heure_display() }}</td>
+                                <td>
+                                    <form method="POST" action="{{ url_for('admin_bp.confirmer_visite', demande_id=demande.id) }}" style="display: inline;">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                        <input type="hidden" name="duree" value="60">
+                                        <button type="submit" class="btn btn-sm btn-success">
+                                            <i class="fas fa-check"></i> Confirmer
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-check-circle fa-2x text-success"></i>
+                    <p class="mt-2">Aucune demande en attente</p>
+                </div>
+                {% endif %}
+            </div>
+            <div class="card-footer">
+                <a href="{{ url_for('admin_bp.visites') }}" class="btn btn-primary btn-sm">
+                    Voir toutes les demandes
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Visites du jour -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-calendar-day text-info"></i>
+                    Visites du jour ({{ visites_du_jour|length }})
+                </h3>
+            </div>
+            <div class="card-body p-0">
+                {% if visites_du_jour %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Contact</th>
+                                <th>Bien</th>
+                                <th>Heure</th>
+                                <th>Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for visite in visites_du_jour[:5] %}
+                            <tr>
+                                <td>
+                                    <strong>{{ visite.nom_contact }}</strong><br>
+                                    <small>{{ visite.telephone_contact }}</small>
+                                </td>
+                                <td>{{ visite.bien.titre if visite.bien else 'Bien supprimé' }}</td>
+                                <td>{{ visite.get_heure_display() }}</td>
+                                <td>
+                                    <span class="badge {{ visite.get_status_badge_class() }}">
+                                        {{ visite.statut.value.title() }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-calendar-times fa-2x text-muted"></i>
+                    <p class="mt-2">Aucune visite prévue aujourd'hui</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Demandes en retard -->
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-exclamation-triangle text-danger"></i>
+                    Demandes en retard ({{ demandes_retardees|length }})
+                </h3>
+            </div>
+            <div class="card-body p-0">
+                {% if demandes_retardees %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Contact</th>
+                                <th>Bien</th>
+                                <th>Date souhaitée</th>
+                                <th>Jours de retard</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for demande in demandes_retardees[:10] %}
+                            <tr>
+                                <td>
+                                    <strong>{{ demande.nom_contact }}</strong><br>
+                                    <small>{{ demande.telephone_contact }}</small>
+                                </td>
+                                <td>{{ demande.bien.titre if demande.bien else 'Bien supprimé' }}</td>
+                                <td>{{ demande.get_date_display() }}</td>
+                                <td>
+                                    <span class="badge badge-danger">
+                                        {{ (today - demande.date_souhaitee).days }} jours
+                                    </span>
+                                </td>
+                                <td>
+                                    <form method="POST" action="{{ url_for('admin_bp.confirmer_visite', demande_id=demande.id) }}" style="display: inline;">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                        <input type="hidden" name="duree" value="60">
+                                        <button type="submit" class="btn btn-sm btn-success">
+                                            <i class="fas fa-check"></i> Confirmer
+                                        </button>
+                                    </form>
+                                    <form method="POST" action="{{ url_for('admin_bp.annuler_visite', demande_id=demande.id) }}" style="display: inline;">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                        <button type="submit" class="btn btn-sm btn-danger" 
+                                                onclick="return confirm('Annuler cette demande ?')">
+                                            <i class="fas fa-times"></i> Annuler
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-thumbs-up fa-2x text-success"></i>
+                    <p class="mt-2">Aucune demande en retard</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Actualisation automatique des statistiques
+setInterval(function() {
+    fetch('{{ url_for("admin_bp.api_statistiques_globales") }}')
+        .then(response => response.json())
+        .then(data => {
+            // Mettre à jour les statistiques
+            console.log('Statistiques mises à jour');
+        });
+}, 30000); // Toutes les 30 secondes
+</script>
+{% endblock %} 

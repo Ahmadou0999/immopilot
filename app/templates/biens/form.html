@@ -1,0 +1,391 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - ImmoPilot{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">{{ title }}</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}">Accueil</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('biens.index') }}">Biens</a></li>
+                    {% if bien %}
+                    <li class="breadcrumb-item"><a href="{{ url_for('biens.detail', bien_id=bien.id) }}">{{ bien.titre }}</a></li>
+                    {% endif %}
+                    <li class="breadcrumb-item active">{{ title }}</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-home mr-2"></i>
+                            {{ title }}
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST" enctype="multipart/form-data">
+                            {{ form.hidden_tag() }}
+                            
+                            <!-- Informations générales -->
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <h5 class="text-primary mb-3">
+                                        <i class="fas fa-info-circle mr-2"></i>Informations générales
+                                    </h5>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ form.reference.label(class="form-label") }}
+                                        {{ form.reference(class="form-control" + (" is-invalid" if form.reference.errors else "")) }}
+                                        {% if form.reference.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.reference.errors %}
+                                            {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ form.titre.label(class="form-label") }}
+                                        {{ form.titre(class="form-control" + (" is-invalid" if form.titre.errors else "")) }}
+                                        {% if form.titre.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.titre.errors %}
+                                            {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ form.type_bien.label(class="form-label") }}
+                                        {{ form.type_bien(class="form-select" + (" is-invalid" if form.type_bien.errors else "")) }}
+                                        {% if form.type_bien.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.type_bien.errors %}
+                                            {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ form.type_transaction.label(class="form-label") }}
+                                        {{ form.type_transaction(class="form-select" + (" is-invalid" if form.type_transaction.errors else "")) }}
+                                        {% if form.type_transaction.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.type_transaction.errors %}
+                                            {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                {{ form.description.label(class="form-label") }}
+                                {{ form.description(class="form-control", rows="3") }}
+                            </div>
+                            
+                            <!-- Localisation -->
+                            <div class="row mt-4">
+                                <div class="col-md-12">
+                                    <h5 class="text-primary mb-3">
+                                        <i class="fas fa-map-marker-alt mr-2"></i>Localisation
+                                    </h5>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        {{ form.adresse.label(class="form-label") }}
+                                        {{ form.adresse(class="form-control" + (" is-invalid" if form.adresse.errors else "")) }}
+                                        {% if form.adresse.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.adresse.errors %}
+                                            {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        {{ form.ville.label(class="form-label") }}
+                                        {{ form.ville(class="form-control" + (" is-invalid" if form.ville.errors else "")) }}
+                                        {% if form.ville.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.ville.errors %}
+                                            {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        {{ form.code_postal.label(class="form-label") }}
+                                        {{ form.code_postal(class="form-control" + (" is-invalid" if form.code_postal.errors else "")) }}
+                                        {% if form.code_postal.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.code_postal.errors %}
+                                            {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        {{ form.quartier.label(class="form-label") }}
+                                        {{ form.quartier(class="form-control") }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Caractéristiques -->
+                            <div class="row mt-4">
+                                <div class="col-md-12">
+                                    <h5 class="text-primary mb-3">
+                                        <i class="fas fa-ruler-combined mr-2"></i>Caractéristiques
+                                    </h5>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        {{ form.surface_habitable.label(class="form-label") }}
+                                        {{ form.surface_habitable(class="form-control") }}
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        {{ form.surface_terrain.label(class="form-label") }}
+                                        {{ form.surface_terrain(class="form-control") }}
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        {{ form.nombre_pieces.label(class="form-label") }}
+                                        {{ form.nombre_pieces(class="form-control") }}
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        {{ form.nombre_chambres.label(class="form-label") }}
+                                        {{ form.nombre_chambres(class="form-control") }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        {{ form.nombre_salles_bain.label(class="form-label") }}
+                                        {{ form.nombre_salles_bain(class="form-control") }}
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        {{ form.nombre_etages.label(class="form-label") }}
+                                        {{ form.nombre_etages(class="form-control") }}
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        {{ form.etage.label(class="form-label") }}
+                                        {{ form.etage(class="form-control") }}
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        {{ form.annee_construction.label(class="form-label") }}
+                                        {{ form.annee_construction(class="form-control") }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Énergie -->
+                            <div class="row mt-4">
+                                <div class="col-md-12">
+                                    <h5 class="text-primary mb-3">
+                                        <i class="fas fa-leaf mr-2"></i>Performance énergétique
+                                    </h5>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ form.classe_energie.label(class="form-label") }}
+                                        {{ form.classe_energie(class="form-select") }}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ form.emission_ges.label(class="form-label") }}
+                                        {{ form.emission_ges(class="form-select") }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Prix -->
+                            <div class="row mt-4">
+                                <div class="col-md-12">
+                                    <h5 class="text-primary mb-3">
+                                        <i class="fas fa-euro-sign mr-2"></i>Informations financières
+                                    </h5>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        {{ form.prix_vente.label(class="form-label") }}
+                                        {{ form.prix_vente(class="form-control") }}
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        {{ form.prix_location.label(class="form-label") }}
+                                        {{ form.prix_location(class="form-control") }}
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        {{ form.charges.label(class="form-label") }}
+                                        {{ form.charges(class="form-control") }}
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        {{ form.taxe_fonciere.label(class="form-label") }}
+                                        {{ form.taxe_fonciere(class="form-control") }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- État et disponibilité -->
+                            <div class="row mt-4">
+                                <div class="col-md-12">
+                                    <h5 class="text-primary mb-3">
+                                        <i class="fas fa-check-circle mr-2"></i>État et disponibilité
+                                    </h5>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        {{ form.etat.label(class="form-label") }}
+                                        {{ form.etat(class="form-select") }}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        {{ form.date_disponibilite.label(class="form-label") }}
+                                        {{ form.date_disponibilite(class="form-control", type="date") }}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <div class="form-check mt-4">
+                                            {{ form.disponible(class="form-check-input") }}
+                                            {{ form.disponible.label(class="form-check-label") }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Informations supplémentaires -->
+                            <div class="row mt-4">
+                                <div class="col-md-12">
+                                    <h5 class="text-primary mb-3">
+                                        <i class="fas fa-plus-circle mr-2"></i>Informations supplémentaires
+                                    </h5>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ form.equipements.label(class="form-label") }}
+                                        {{ form.equipements(class="form-control", rows="3") }}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ form.points_forts.label(class="form-label") }}
+                                        {{ form.points_forts(class="form-control", rows="3") }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ form.points_faibles.label(class="form-label") }}
+                                        {{ form.points_faibles(class="form-control", rows="3") }}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ form.notes_agent.label(class="form-label") }}
+                                        {{ form.notes_agent(class="form-control", rows="3") }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Boutons d'action -->
+                            <div class="row mt-4">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        {{ form.submit(class="btn btn-primary") }}
+                                        {% if bien %}
+                                        <a href="{{ url_for('biens.detail', bien_id=bien.id) }}" class="btn btn-secondary">
+                                            <i class="fas fa-times mr-2"></i>Annuler
+                                        </a>
+                                        {% else %}
+                                        <a href="{{ url_for('biens.index') }}" class="btn btn-secondary">
+                                            <i class="fas fa-times mr-2"></i>Annuler
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %} 

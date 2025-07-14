@@ -1,0 +1,334 @@
+{% extends "base.html" %}
+
+{% block title %}Nos biens - ImmoPilot{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Nos biens</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}">Accueil</a></li>
+                    <li class="breadcrumb-item active">Biens</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <!-- Filtres de recherche -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-search mr-2"></i>
+                    Recherche avancée
+                </h3>
+                <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <form method="GET" action="{{ url_for('biens.index') }}" id="searchForm">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                {{ form.type_bien.label() }}
+                                {{ form.type_bien(class="form-control") }}
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                {{ form.type_transaction.label() }}
+                                {{ form.type_transaction(class="form-control") }}
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                {{ form.ville.label() }}
+                                {{ form.ville(class="form-control", placeholder="Ville") }}
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                {{ form.code_postal.label() }}
+                                {{ form.code_postal(class="form-control", placeholder="Code postal") }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                {{ form.prix_min.label() }}
+                                {{ form.prix_min(class="form-control", placeholder="Prix min") }}
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                {{ form.prix_max.label() }}
+                                {{ form.prix_max(class="form-control", placeholder="Prix max") }}
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                {{ form.surface_min.label() }}
+                                {{ form.surface_min(class="form-control", placeholder="Surface min") }}
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                {{ form.nombre_pieces_min.label() }}
+                                {{ form.nombre_pieces_min(class="form-control", placeholder="Pièces min") }}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>&nbsp;</label>
+                                <div class="btn-group btn-block">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-search mr-2"></i>Rechercher
+                                    </button>
+                                    <a href="{{ url_for('biens.index') }}" class="btn btn-secondary">
+                                        <i class="fas fa-times mr-2"></i>Réinitialiser
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Résultats -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-list mr-2"></i>
+                            Résultats ({{ biens.total }} biens)
+                        </h3>
+                        <div class="card-tools">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-sm btn-outline-secondary" id="gridView">
+                                    <i class="fas fa-th"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary active" id="listView">
+                                    <i class="fas fa-list"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        {% if biens.items %}
+                        <div id="biensGrid" class="row" style="display: none;">
+                            {% for bien in biens.items %}
+                            <div class="col-lg-4 col-md-6 mb-4">
+                                <div class="card h-100">
+                                    <div class="card-img-top bg-secondary" style="height: 200px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-home fa-3x text-white"></i>
+                                    </div>
+                                    <div class="card-body">
+                                        <h5 class="card-title">{{ bien.titre }}</h5>
+                                        <p class="card-text text-muted">{{ bien.reference }}</p>
+                                        <p class="card-text">
+                                            <i class="fas fa-map-marker-alt mr-2"></i>
+                                            {{ bien.ville }}
+                                        </p>
+                                        <p class="card-text">
+                                            <strong class="text-primary">{{ bien.get_price_display() }}</strong>
+                                        </p>
+                                        <p class="card-text">
+                                            <small class="text-muted">
+                                                {{ bien.get_surface_display() }} • {{ bien.get_rooms_display() }}
+                                            </small>
+                                        </p>
+                                    </div>
+                                    <div class="card-footer">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="badge badge-{{ 'primary' if bien.type_transaction.value == 'vente' else 'success' }}">
+                                                {{ bien.type_transaction.value.title() }}
+                                            </span>
+                                            <div class="btn-group">
+                                                <a href="{{ url_for('biens.detail', bien_id=bien.id) }}" class="btn btn-sm btn-primary">
+                                                    Voir détails
+                                                </a>
+                                                {% if current_user.is_authenticated and (current_user.is_admin or bien.agent_id == current_user.id) %}
+                                                <a href="{{ url_for('biens.modifier', bien_id=bien.id) }}" class="btn btn-sm btn-warning" title="Modifier">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <form method="POST" action="{{ url_for('biens.supprimer', bien_id=bien.id) }}" style="display: inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce bien ?')">
+                                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                                    <button type="submit" class="btn btn-sm btn-danger" title="Supprimer">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <div id="biensList">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Référence</th>
+                                            <th>Titre</th>
+                                            <th>Type</th>
+                                            <th>Localisation</th>
+                                            <th>Surface</th>
+                                            <th>Prix</th>
+                                            <th>Statut</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for bien in biens.items %}
+                                        <tr>
+                                            <td>
+                                                <strong>{{ bien.reference }}</strong>
+                                            </td>
+                                            <td>{{ bien.titre }}</td>
+                                            <td>
+                                                <span class="badge badge-{{ 'primary' if bien.type_transaction.value == 'vente' else 'success' }}">
+                                                    {{ bien.type_transaction.value.title() }}
+                                                </span>
+                                                <br>
+                                                <small class="text-muted">{{ bien.type_bien.value.title() }}</small>
+                                            </td>
+                                            <td>
+                                                <i class="fas fa-map-marker-alt mr-1"></i>
+                                                {{ bien.ville }}
+                                                {% if bien.quartier %}
+                                                <br><small class="text-muted">{{ bien.quartier }}</small>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {{ bien.get_surface_display() }}
+                                                {% if bien.nombre_pieces %}
+                                                <br><small class="text-muted">{{ bien.get_rooms_display() }}</small>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <strong class="text-primary">{{ bien.get_price_display() }}</strong>
+                                            </td>
+                                            <td>
+                                                <span class="badge badge-{{ 'success' if bien.disponible else 'danger' }}">
+                                                    {{ 'Disponible' if bien.disponible else 'Indisponible' }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group">
+                                                    <a href="{{ url_for('biens.detail', bien_id=bien.id) }}" class="btn btn-sm btn-info" title="Voir détails">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a href="{{ url_for('main.demande_visite_form', bien_id=bien.id) }}" class="btn btn-sm btn-success" title="Demander une visite">
+                                                        <i class="fas fa-calendar-plus"></i>
+                                                    </a>
+                                                    {% if current_user.is_authenticated and (current_user.is_admin or bien.agent_id == current_user.id) %}
+                                                    <a href="{{ url_for('biens.modifier', bien_id=bien.id) }}" class="btn btn-sm btn-warning" title="Modifier">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <form method="POST" action="{{ url_for('biens.supprimer', bien_id=bien.id) }}" style="display: inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce bien ?')">
+                                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                                        <button type="submit" class="btn btn-sm btn-danger" title="Supprimer">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                    {% endif %}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Pagination -->
+                        {% if biens.pages > 1 %}
+                        <nav aria-label="Pagination des biens">
+                            <ul class="pagination justify-content-center">
+                                {% if biens.has_prev %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('biens.index', page=biens.prev_num, **request.args) }}">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </a>
+                                </li>
+                                {% endif %}
+                                
+                                {% for page_num in biens.iter_pages() %}
+                                    {% if page_num %}
+                                        {% if page_num != biens.page %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="{{ url_for('biens.index', page=page_num, **request.args) }}">{{ page_num }}</a>
+                                        </li>
+                                        {% else %}
+                                        <li class="page-item active">
+                                            <span class="page-link">{{ page_num }}</span>
+                                        </li>
+                                        {% endif %}
+                                    {% else %}
+                                    <li class="page-item disabled">
+                                        <span class="page-link">...</span>
+                                    </li>
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                {% if biens.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('biens.index', page=biens.next_num, **request.args) }}">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                        {% endif %}
+                        
+                        {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                            <h4 class="text-muted">Aucun bien trouvé</h4>
+                            <p class="text-muted">Essayez de modifier vos critères de recherche</p>
+                            <a href="{{ url_for('biens.index') }}" class="btn btn-primary">
+                                <i class="fas fa-times mr-2"></i>Réinitialiser la recherche
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Recherche AJAX en temps réel
+let searchTimeout;
+document.querySelectorAll('#searchForm input, #searchForm select').forEach(function(element) {
+    element.addEventListener('change', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(function() {
+            document.getElementById('searchForm').submit();
+        }, 500);
+    });
+});
+</script>
+{% endblock %} 

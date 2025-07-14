@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block title %}Recherche - ImmoPilot{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active">Recherche</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Filtres -->
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Filtres</h5>
+            </div>
+            <div class="card-body">
+                <form method="GET" action="{{ url_for('main.search') }}">
+                    <div class="mb-3">
+                        <label class="form-label">Recherche</label>
+                        <input type="text" name="q" class="form-control" value="{{ query }}" placeholder="Ville, type, prix...">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Type de bien</label>
+                        <select name="type" class="form-select">
+                            <option value="">Tous</option>
+                            <option value="appartement" {{ 'selected' if request.args.get('type') == 'appartement' }}>Appartement</option>
+                            <option value="maison" {{ 'selected' if request.args.get('type') == 'maison' }}>Maison</option>
+                            <option value="terrain" {{ 'selected' if request.args.get('type') == 'terrain' }}>Terrain</option>
+                            <option value="bureau" {{ 'selected' if request.args.get('type') == 'bureau' }}>Bureau</option>
+                            <option value="commerce" {{ 'selected' if request.args.get('type') == 'commerce' }}>Commerce</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Transaction</label>
+                        <select name="transaction" class="form-select">
+                            <option value="">Toutes</option>
+                            <option value="vente" {{ 'selected' if request.args.get('transaction') == 'vente' }}>Vente</option>
+                            <option value="location" {{ 'selected' if request.args.get('transaction') == 'location' }}>Location</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Prix minimum</label>
+                        <input type="number" name="prix_min" class="form-control" value="{{ request.args.get('prix_min', '') }}" placeholder="0">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Prix maximum</label>
+                        <input type="number" name="prix_max" class="form-control" value="{{ request.args.get('prix_max', '') }}" placeholder="1000000">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search"></i> Filtrer
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Résultats -->
+    <div class="col-md-9">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    {% if query %}
+                        Résultats pour "{{ query }}"
+                    {% else %}
+                        Tous nos biens
+                    {% endif %}
+                </h5>
+                <span class="badge badge-primary">{{ biens.total }} bien(s) trouvé(s)</span>
+            </div>
+            <div class="card-body">
+                {% if biens.items %}
+                <div class="row">
+                    {% for bien in biens.items %}
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            {% if bien.get_images_list() %}
+                            <img src="{{ bien.get_images_list()[0] }}" class="card-img-top" alt="{{ bien.titre }}" style="height: 200px; object-fit: cover;">
+                            {% else %}
+                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                <i class="fas fa-home fa-3x text-muted"></i>
+                            </div>
+                            {% endif %}
+                            <div class="card-body">
+                                <h6 class="card-title">{{ bien.titre }}</h6>
+                                <p class="card-text text-muted small">{{ bien.ville }}, {{ bien.code_postal }}</p>
+                                <p class="card-text">
+                                    {% if bien.prix %}
+                                        <strong class="text-primary">{{ "{:,.0f}".format(bien.prix) }} FCFA</strong>
+                                        {% if bien.type_transaction.value == 'location' %}/mois{% endif %}
+                                    {% else %}
+                                        <strong class="text-primary">Prix sur demande</strong>
+                                    {% endif %}
+                                </p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="badge badge-{{ 'success' if bien.type_transaction.value == 'vente' else 'info' }}">
+                                        {{ bien.type_transaction.value.title() }}
+                                    </span>
+                                    <span class="badge badge-secondary">{{ bien.type_bien.value.title() }}</span>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <a href="{{ url_for('biens.detail', bien_id=bien.id) }}" class="btn btn-outline-primary btn-sm w-100">
+                                    Voir les détails
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- Pagination -->
+                {% if biens.pages > 1 %}
+                <nav aria-label="Pagination des biens">
+                    <ul class="pagination justify-content-center">
+                        {% if biens.has_prev %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('main.search', page=biens.prev_num, q=query, **request.args) }}">Précédent</a>
+                        </li>
+                        {% endif %}
+                        
+                        {% for page_num in biens.iter_pages() %}
+                            {% if page_num %}
+                                {% if page_num != biens.page %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('main.search', page=page_num, q=query, **request.args) }}">{{ page_num }}</a>
+                                </li>
+                                {% else %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ page_num }}</span>
+                                </li>
+                                {% endif %}
+                            {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if biens.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('main.search', page=biens.next_num, q=query, **request.args) }}">Suivant</a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+                
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                    <h5>Aucun bien trouvé</h5>
+                    <p class="text-muted">Essayez de modifier vos critères de recherche.</p>
+                    <a href="{{ url_for('main.search') }}" class="btn btn-primary">Voir tous les biens</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

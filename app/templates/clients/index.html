@@ -1,0 +1,226 @@
+{% extends "base.html" %}
+
+{% block title %}Clients - ImmoPilot{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Clients</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}">Accueil</a></li>
+                    <li class="breadcrumb-item active">Clients</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <!-- Filtres de recherche -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-search mr-2"></i>
+                    Recherche
+                </h3>
+            </div>
+            <div class="card-body">
+                <form method="GET" action="{{ url_for('clients.index') }}">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                {{ form.nom.label(class="form-label") }}
+                                {{ form.nom(class="form-control", placeholder="Nom") }}
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                {{ form.email.label(class="form-label") }}
+                                {{ form.email(class="form-control", placeholder="Email") }}
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                {{ form.ville.label(class="form-label") }}
+                                {{ form.ville(class="form-control", placeholder="Ville") }}
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label class="form-label">&nbsp;</label>
+                                <div>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-search mr-2"></i>Rechercher
+                                    </button>
+                                    <a href="{{ url_for('clients.index') }}" class="btn btn-secondary">
+                                        <i class="fas fa-times mr-2"></i>Réinitialiser
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="row mb-3">
+            <div class="col-12">
+                <a href="{{ url_for('clients.ajouter') }}" class="btn btn-primary">
+                    <i class="fas fa-plus mr-2"></i>Ajouter un client
+                </a>
+                <a href="{{ url_for('clients.prospects') }}" class="btn btn-info">
+                    <i class="fas fa-user-clock mr-2"></i>Prospects
+                </a>
+                <a href="{{ url_for('clients.clients_actifs') }}" class="btn btn-success">
+                    <i class="fas fa-user-check mr-2"></i>Clients actifs
+                </a>
+            </div>
+        </div>
+
+        <!-- Liste des clients -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-users mr-2"></i>
+                    Liste des clients ({{ clients.total }})
+                </h3>
+            </div>
+            <div class="card-body">
+                {% if clients.items %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Nom</th>
+                                <th>Contact</th>
+                                <th>Localisation</th>
+                                <th>Budget</th>
+                                <th>Statut</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for client in clients.items %}
+                            <tr>
+                                <td>
+                                    <strong>{{ client.get_full_name() }}</strong>
+                                    {% if client.profession %}
+                                    <br><small class="text-muted">{{ client.profession }}</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <i class="fas fa-envelope mr-1"></i>{{ client.email }}<br>
+                                    <i class="fas fa-phone mr-1"></i>{{ client.telephone }}
+                                </td>
+                                <td>
+                                    {% if client.ville %}
+                                    <i class="fas fa-map-marker-alt mr-1"></i>{{ client.ville }}
+                                    {% if client.code_postal %}, {{ client.code_postal }}{% endif %}
+                                    {% else %}
+                                    <span class="text-muted">Non renseigné</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if client.budget_min or client.budget_max %}
+                                        {% if client.budget_min and client.budget_max %}
+                                            {{ "{:,.0f}".format(client.budget_min) }} FCFA - {{ "{:,.0f}".format(client.budget_max) }} FCFA
+                                        {% elif client.budget_min %}
+                                            À partir de {{ "{:,.0f}".format(client.budget_min) }} FCFA
+                                        {% elif client.budget_max %}
+                                            Jusqu'à {{ "{:,.0f}".format(client.budget_max) }} FCFA
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="text-muted">Non renseigné</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge badge-{{ 'success' if client.est_actif else 'warning' }}">
+                                        {{ 'Actif' if client.est_actif else 'Prospect' }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a href="{{ url_for('clients.detail', client_id=client.id) }}" class="btn btn-sm btn-info" title="Voir détails">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{{ url_for('clients.modifier', client_id=client.id) }}" class="btn btn-sm btn-warning" title="Modifier">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        {% if current_user.is_authenticated %}
+                                        <form method="POST" action="{{ url_for('clients.supprimer', client_id=client.id) }}" style="display: inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce client ?')">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                            <button type="submit" class="btn btn-sm btn-danger" title="Supprimer">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                {% if clients.pages > 1 %}
+                <nav aria-label="Pagination des clients">
+                    <ul class="pagination justify-content-center">
+                        {% if clients.has_prev %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('clients.index', page=clients.prev_num, **request.args) }}">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                        {% endif %}
+                        
+                        {% for page_num in clients.iter_pages() %}
+                            {% if page_num %}
+                                {% if page_num != clients.page %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('clients.index', page=page_num, **request.args) }}">{{ page_num }}</a>
+                                </li>
+                                {% else %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ page_num }}</span>
+                                </li>
+                                {% endif %}
+                            {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if clients.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('clients.index', page=clients.next_num, **request.args) }}">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+                
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                    <h4 class="text-muted">Aucun client trouvé</h4>
+                    <p class="text-muted">Commencez par ajouter votre premier client</p>
+                    <a href="{{ url_for('clients.ajouter') }}" class="btn btn-primary">
+                        <i class="fas fa-plus mr-2"></i>Ajouter un client
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %} 

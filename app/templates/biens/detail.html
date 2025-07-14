@@ -1,0 +1,397 @@
+{% extends "base.html" %}
+
+{% block title %}{{ bien.titre }} - ImmoPilot{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{{ url_for('biens.index') }}">Biens</a></li>
+<li class="breadcrumb-item active">{{ bien.titre }}</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Images du bien -->
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                {% if bien.get_images_list() %}
+                <div id="carouselBien" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+                        {% for image in bien.get_images_list() %}
+                        <div class="carousel-item {{ 'active' if loop.first }}">
+                            <img src="{{ image }}" class="d-block w-100" alt="{{ bien.titre }}" style="height: 400px; object-fit: cover;">
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% if bien.get_images_list()|length > 1 %}
+                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselBien" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon"></span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#carouselBien" data-bs-slide="next">
+                        <span class="carousel-control-next-icon"></span>
+                    </button>
+                    {% endif %}
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-home fa-5x text-muted"></i>
+                    <p class="mt-3 text-muted">Aucune image disponible</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Informations principales -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title">{{ bien.get_price_display() }}</h4>
+                <p class="text-muted mb-0">{{ bien.get_full_address() }}</p>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <small class="text-muted">Type</small><br>
+                        <strong>{{ bien.type_bien.value.title() }}</strong>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted">Transaction</small><br>
+                        <strong>{{ bien.type_transaction.value.title() }}</strong>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <small class="text-muted">Surface</small><br>
+                        <strong>{{ bien.get_surface_display() }}</strong>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted">Pièces</small><br>
+                        <strong>{{ bien.get_rooms_display() }}</strong>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <small class="text-muted">Statut</small><br>
+                        <span class="badge badge-{{ 'success' if bien.disponible else 'danger' }}">
+                            {{ bien.get_status_badge() }}
+                        </span>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted">Référence</small><br>
+                        <strong>{{ bien.reference }}</strong>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <!-- Actions -->
+                <div class="d-grid gap-2">
+                    <div class="mb-3">
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#demandeVisiteModal">
+                            <i class="fas fa-calendar-plus"></i> Demander une visite
+                        </button>
+                    </div>
+                    {% if bien.disponible %}
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#demandeVisiteModal">
+                        <i class="fas fa-calendar-plus"></i> Demander une visite
+                    </button>
+                    {% endif %}
+                    
+                    {% if current_user.is_authenticated %}
+                        {% if bien.agent_id == current_user.id or current_user.is_admin %}
+                        <a href="{{ url_for('biens.modifier', bien_id=bien.id) }}" class="btn btn-outline-primary">
+                            <i class="fas fa-edit"></i> Modifier
+                        </a>
+                        <form method="POST" action="{{ url_for('biens.supprimer', bien_id=bien.id) }}" style="display: inline;">
+                            <button type="submit" class="btn btn-outline-danger" 
+                                    onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce bien ?')">
+                                <i class="fas fa-trash"></i> Supprimer
+                            </button>
+                        </form>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Agent responsable -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="card-title mb-0">Agent responsable</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-user-circle fa-2x text-primary"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="mb-0">{{ bien.agent.get_full_name() }}</h6>
+                        <small class="text-muted">{{ bien.agent.email }}</small>
+                        {% if bien.agent.telephone %}
+                        <br><small class="text-muted">{{ bien.agent.telephone }}</small>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Description et détails -->
+<div class="row mt-4">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Description</h5>
+            </div>
+            <div class="card-body">
+                {% if bien.description %}
+                    {{ bien.description|replace('\n', '<br>')|safe }}
+                {% else %}
+                    <p class="text-muted">Aucune description disponible.</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Caractéristiques détaillées -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="card-title">Caractéristiques</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-sm">
+                            <tbody>
+                                {% if bien.surface_habitable %}
+                                <tr>
+                                    <td><strong>Surface habitable :</strong></td>
+                                    <td>{{ bien.surface_habitable }} m²</td>
+                                </tr>
+                                {% endif %}
+                                {% if bien.surface_terrain %}
+                                <tr>
+                                    <td><strong>Surface terrain :</strong></td>
+                                    <td>{{ bien.surface_terrain }} m²</td>
+                                </tr>
+                                {% endif %}
+                                {% if bien.nombre_pieces %}
+                                <tr>
+                                    <td><strong>Nombre de pièces :</strong></td>
+                                    <td>{{ bien.nombre_pieces }}</td>
+                                </tr>
+                                {% endif %}
+                                {% if bien.nombre_chambres %}
+                                <tr>
+                                    <td><strong>Nombre de chambres :</strong></td>
+                                    <td>{{ bien.nombre_chambres }}</td>
+                                </tr>
+                                {% endif %}
+                                {% if bien.nombre_salles_bain %}
+                                <tr>
+                                    <td><strong>Salles de bain :</strong></td>
+                                    <td>{{ bien.nombre_salles_bain }}</td>
+                                </tr>
+                                {% endif %}
+                                {% if bien.etage %}
+                                <tr>
+                                    <td><strong>Étage :</strong></td>
+                                    <td>{{ bien.etage }}</td>
+                                </tr>
+                                {% endif %}
+                                {% if bien.nombre_etages %}
+                                <tr>
+                                    <td><strong>Nombre d'étages :</strong></td>
+                                    <td>{{ bien.nombre_etages }}</td>
+                                </tr>
+                                {% endif %}
+                                {% if bien.annee_construction %}
+                                <tr>
+                                    <td><strong>Année de construction :</strong></td>
+                                    <td>{{ bien.annee_construction }}</td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-sm">
+                            <tbody>
+                                {% if bien.classe_energie %}
+                                <tr>
+                                    <td><strong>Classe énergétique :</strong></td>
+                                    <td><span class="badge badge-info">{{ bien.classe_energie }}</span></td>
+                                </tr>
+                                {% endif %}
+                                {% if bien.emission_ges %}
+                                <tr>
+                                    <td><strong>Émission GES :</strong></td>
+                                    <td><span class="badge badge-warning">{{ bien.emission_ges }}</span></td>
+                                </tr>
+                                {% endif %}
+                                {% if bien.etat %}
+                                <tr>
+                                    <td><strong>État :</strong></td>
+                                    <td>{{ bien.etat.title() }}</td>
+                                </tr>
+                                {% endif %}
+                                {% if bien.charges %}
+                                <tr>
+                                    <td><strong>Charges :</strong></td>
+                                    <td>{{ "{:,.0f}".format(bien.charges) }} FCFA</td>
+                                </tr>
+                                {% endif %}
+                                {% if bien.taxe_fonciere %}
+                                <tr>
+                                    <td><strong>Taxe foncière :</strong></td>
+                                    <td>{{ "{:,.0f}".format(bien.taxe_fonciere) }} FCFA</td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Points forts et faibles -->
+        {% if bien.points_forts or bien.points_faibles %}
+        <div class="row mt-3">
+            {% if bien.points_forts %}
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="card-title mb-0">Points forts</h6>
+                    </div>
+                    <div class="card-body">
+                        {{ bien.points_forts|replace('\n', '<br>')|safe }}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if bien.points_faibles %}
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-warning text-white">
+                        <h6 class="card-title mb-0">Points d'attention</h6>
+                    </div>
+                    <div class="card-body">
+                        {{ bien.points_faibles|replace('\n', '<br>')|safe }}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Demandes de visite récentes -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0">Demandes de visite récentes</h6>
+            </div>
+            <div class="card-body">
+                {% if demandes_visite.items %}
+                    {% for demande in demandes_visite.items %}
+                    <div class="border-bottom pb-2 mb-2">
+                        <div class="d-flex justify-content-between">
+                            <strong>{{ demande.nom_contact }}</strong>
+                            <span class="badge {{ demande.get_status_badge_class() }}">
+                                {{ demande.statut.value.title() }}
+                            </span>
+                        </div>
+                        <small class="text-muted">
+                            {{ demande.get_date_display() }} à {{ demande.get_heure_display() }}
+                        </small>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted">Aucune demande de visite.</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Contrats récents -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="card-title mb-0">Contrats récents</h6>
+            </div>
+            <div class="card-body">
+                {% if contrats.items %}
+                    {% for contrat in contrats.items %}
+                    <div class="border-bottom pb-2 mb-2">
+                        <div class="d-flex justify-content-between">
+                            <strong>{{ contrat.client.get_full_name() if contrat.client else 'Client supprimé' }}</strong>
+                            <span class="badge {{ contrat.get_status_badge_class() }}">
+                                {{ contrat.get_status_display() }}
+                            </span>
+                        </div>
+                        <small class="text-muted">
+                            {{ contrat.get_date_debut_display() }} - {{ contrat.get_date_fin_display() }}
+                        </small>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted">Aucun contrat.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de demande de visite -->
+<div class="modal fade" id="demandeVisiteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Demander une visite</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('main.demande_visite') }}">
+                <div class="modal-body">
+                    <p>Demander une visite pour <strong>{{ bien.titre }}</strong></p>
+                    <input type="hidden" name="bien_id" value="{{ bien.id }}">
+                    <div class="form-group mb-3">
+                        <label class="form-label">Nom complet *</label>
+                        <input type="text" name="nom_contact" class="form-control" required>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="form-label">Téléphone *</label>
+                        <input type="tel" name="telephone_contact" class="form-control" required>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" name="email_contact" class="form-control">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label class="form-label">Date souhaitée *</label>
+                                <input type="date" name="date_souhaitee" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label class="form-label">Heure souhaitée *</label>
+                                <input type="time" name="heure_souhaitee" class="form-control" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="form-label">Commentaires</label>
+                        <textarea name="commentaires" class="form-control" rows="3" placeholder="Précisions sur votre visite..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Demander la visite</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

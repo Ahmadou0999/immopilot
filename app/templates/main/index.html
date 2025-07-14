@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}Accueil - ImmoPilot{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-section bg-primary text-white py-5 mb-4">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h1 class="display-4">ImmoPilot</h1>
+                <p class="lead">Votre partenaire de confiance pour tous vos projets immobiliers</p>
+                <p>Découvrez notre sélection de biens exceptionnels et bénéficiez de l'expertise de nos agents qualifiés.</p>
+                {% if not current_user.is_authenticated %}
+                <a href="{{ url_for('auth.login') }}" class="btn btn-light btn-lg">Se connecter</a>
+                {% else %}
+                <a href="{{ url_for('main.dashboard') }}" class="btn btn-light btn-lg">Accéder au dashboard</a>
+                {% endif %}
+            </div>
+            <div class="col-md-6 text-center">
+                <i class="fas fa-home fa-6x opacity-75"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Search Section -->
+<div class="container mb-5">
+    <div class="card">
+        <div class="card-body">
+            <h3 class="card-title text-center mb-4">Rechercher un bien</h3>
+            <form action="{{ url_for('main.search') }}" method="GET" class="row g-3">
+                <div class="col-md-4">
+                    <input type="text" name="q" class="form-control" placeholder="Rechercher par ville, type, prix..." value="{{ request.args.get('q', '') }}">
+                </div>
+                <div class="col-md-3">
+                    <select name="type" class="form-select">
+                        <option value="">Tous les types</option>
+                        <option value="appartement">Appartement</option>
+                        <option value="maison">Maison</option>
+                        <option value="terrain">Terrain</option>
+                        <option value="bureau">Bureau</option>
+                        <option value="commerce">Commerce</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select name="transaction" class="form-select">
+                        <option value="">Toutes les transactions</option>
+                        <option value="vente">Vente</option>
+                        <option value="location">Location</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search"></i> Rechercher
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Properties -->
+{% if biens_recents %}
+<div class="container mb-5">
+    <h2 class="text-center mb-4">Nos derniers biens</h2>
+    <div class="row">
+        {% for bien in biens_recents %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                {% if bien.get_images_list() %}
+                <img src="{{ bien.get_images_list()[0] }}" class="card-img-top" alt="{{ bien.titre }}" style="height: 200px; object-fit: cover;">
+                {% else %}
+                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                    <i class="fas fa-home fa-3x text-muted"></i>
+                </div>
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ bien.titre }}</h5>
+                    <p class="card-text text-muted">{{ bien.ville }}, {{ bien.code_postal }}</p>
+                    <p class="card-text">
+                        {% if bien.prix %}
+                            <strong class="text-primary">{{ "{:,.0f}".format(bien.prix) }} FCFA</strong>
+                            {% if bien.type_transaction.value == 'location' %}/mois{% endif %}
+                        {% else %}
+                            <strong class="text-primary">Prix sur demande</strong>
+                        {% endif %}
+                    </p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge badge-{{ 'success' if bien.type_transaction.value == 'vente' else 'info' }}">
+                            {{ bien.type_transaction.value.title() }}
+                        </span>
+                        <span class="badge badge-secondary">{{ bien.type_bien.value.title() }}</span>
+                    </div>
+                </div>
+                <div class="card-footer">
+                                                    <a href="{{ url_for('biens.detail', bien_id=bien.id) }}" class="btn btn-outline-primary btn-sm w-100">
+                                    Voir les détails
+                                </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="text-center mt-4">
+        <a href="{{ url_for('main.search') }}" class="btn btn-primary">Voir tous nos biens</a>
+    </div>
+</div>
+{% endif %}
+
+<!-- Services Section -->
+<div class="container mb-5">
+    <h2 class="text-center mb-4">Nos services</h2>
+    <div class="row">
+        <div class="col-md-4 text-center mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <i class="fas fa-home fa-3x text-primary mb-3"></i>
+                    <h5 class="card-title">Achat</h5>
+                    <p class="card-text">Trouvez la maison de vos rêves avec notre expertise et notre accompagnement personnalisé.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 text-center mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <i class="fas fa-key fa-3x text-primary mb-3"></i>
+                    <h5 class="card-title">Location</h5>
+                    <p class="card-text">Découvrez notre sélection de biens à louer pour tous les budgets et tous les besoins.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 text-center mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <i class="fas fa-chart-line fa-3x text-primary mb-3"></i>
+                    <h5 class="card-title">Investissement</h5>
+                    <p class="card-text">Optimisez votre patrimoine avec nos conseils d'experts en investissement immobilier.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Contact Section -->
+<div class="container mb-5">
+    <div class="card bg-light">
+        <div class="card-body text-center">
+            <h3>Besoin d'aide ?</h3>
+            <p class="lead">Nos experts sont là pour vous accompagner dans tous vos projets immobiliers.</p>
+            <a href="{{ url_for('main.contact') }}" class="btn btn-primary btn-lg">Nous contacter</a>
+        </div>
+    </div>
+</div>
+{% endblock %} 

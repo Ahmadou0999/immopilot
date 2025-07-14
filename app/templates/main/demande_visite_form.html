@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+
+{% block title %}Demande de visite - {{ bien.titre }}{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Demande de visite</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}">Accueil</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('biens.detail', bien_id=bien.id) }}">{{ bien.titre }}</a></li>
+                    <li class="breadcrumb-item active">Demande de visite</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-calendar-plus mr-2"></i>
+                            Demander une visite
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            <h5><i class="fas fa-home mr-2"></i>{{ bien.titre }}</h5>
+                            <p class="mb-1"><strong>Référence:</strong> {{ bien.reference }}</p>
+                            <p class="mb-1"><strong>Localisation:</strong> {{ bien.ville }}, {{ bien.code_postal }}</p>
+                            <p class="mb-0"><strong>Prix:</strong> {{ bien.get_price_display() }}</p>
+                        </div>
+                        
+                        <form method="POST" action="{{ url_for('main.demande_visite') }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                            <input type="hidden" name="bien_id" value="{{ bien.id }}">
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ form.nom_contact.label(class="form-label") }}
+                                        {{ form.nom_contact(class="form-control", required=true) }}
+                                        {% if form.nom_contact.errors %}
+                                            <div class="text-danger">
+                                                {% for error in form.nom_contact.errors %}
+                                                    <small>{{ error }}</small>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ form.telephone_contact.label(class="form-label") }}
+                                        {{ form.telephone_contact(class="form-control", required=true) }}
+                                        {% if form.telephone_contact.errors %}
+                                            <div class="text-danger">
+                                                {% for error in form.telephone_contact.errors %}
+                                                    <small>{{ error }}</small>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ form.email_contact.label(class="form-label") }}
+                                        {{ form.email_contact(class="form-control") }}
+                                        {% if form.email_contact.errors %}
+                                            <div class="text-danger">
+                                                {% for error in form.email_contact.errors %}
+                                                    <small>{{ error }}</small>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ form.nombre_personnes.label(class="form-label") }}
+                                        {{ form.nombre_personnes(class="form-control") }}
+                                        {% if form.nombre_personnes.errors %}
+                                            <div class="text-danger">
+                                                {% for error in form.nombre_personnes.errors %}
+                                                    <small>{{ error }}</small>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ form.date_souhaitee.label(class="form-label") }}
+                                        {{ form.date_souhaitee(class="form-control", required=true) }}
+                                        {% if form.date_souhaitee.errors %}
+                                            <div class="text-danger">
+                                                {% for error in form.date_souhaitee.errors %}
+                                                    <small>{{ error }}</small>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ form.heure_souhaitee.label(class="form-label") }}
+                                        {{ form.heure_souhaitee(class="form-control", required=true) }}
+                                        {% if form.heure_souhaitee.errors %}
+                                            <div class="text-danger">
+                                                {% for error in form.heure_souhaitee.errors %}
+                                                    <small>{{ error }}</small>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                {{ form.motivation.label(class="form-label") }}
+                                {{ form.motivation(class="form-control", required=true) }}
+                                {% if form.motivation.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.motivation.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="form-group">
+                                {{ form.commentaires.label(class="form-label") }}
+                                {{ form.commentaires(class="form-control", rows=4) }}
+                                {% if form.commentaires.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.commentaires.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-paper-plane mr-2"></i>
+                                    Envoyer la demande
+                                </button>
+                                <a href="{{ url_for('biens.detail', bien_id=bien.id) }}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left mr-2"></i>
+                                    Retour au bien
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-info-circle mr-2"></i>
+                            Informations
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Surface:</strong> {{ bien.get_surface_display() }}</p>
+                        <p><strong>Pièces:</strong> {{ bien.get_rooms_display() }}</p>
+                        <p><strong>Type:</strong> {{ bien.type_bien.value.title() }}</p>
+                        <p><strong>Transaction:</strong> {{ bien.type_transaction.value.title() }}</p>
+                        {% if bien.quartier %}
+                        <p><strong>Quartier:</strong> {{ bien.quartier }}</p>
+                        {% endif %}
+                        {% if bien.annee_construction %}
+                        <p><strong>Année:</strong> {{ bien.annee_construction }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %} 

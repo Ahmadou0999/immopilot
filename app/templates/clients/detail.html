@@ -1,0 +1,273 @@
+{% extends "base.html" %}
+
+{% block title %}{{ client.get_full_name() }} - ImmoPilot{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">{{ client.get_full_name() }}</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}">Accueil</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('clients.index') }}">Clients</a></li>
+                    <li class="breadcrumb-item active">{{ client.get_full_name() }}</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-8">
+                <!-- Informations du client -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-user mr-2"></i>
+                            Informations personnelles
+                        </h3>
+                        <div class="card-tools">
+                            <a href="{{ url_for('clients.modifier', client_id=client.id) }}" class="btn btn-warning btn-sm">
+                                <i class="fas fa-edit mr-2"></i>Modifier
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Nom :</strong> {{ client.nom }}</p>
+                                <p><strong>Prénom :</strong> {{ client.prenom }}</p>
+                                <p><strong>Email :</strong> <a href="mailto:{{ client.email }}">{{ client.email }}</a></p>
+                                <p><strong>Téléphone :</strong> <a href="tel:{{ client.telephone }}">{{ client.telephone }}</a></p>
+                            </div>
+                            <div class="col-md-6">
+                                {% if client.date_naissance %}
+                                <p><strong>Date de naissance :</strong> {{ client.date_naissance.strftime('%d/%m/%Y') }}</p>
+                                {% endif %}
+                                {% if client.profession %}
+                                <p><strong>Profession :</strong> {{ client.profession }}</p>
+                                {% endif %}
+                                <p><strong>Statut :</strong> 
+                                    <span class="badge badge-{{ 'success' if client.est_actif else 'warning' }}">
+                                        {{ 'Client actif' if client.est_actif else 'Prospect' }}
+                                    </span>
+                                </p>
+                                <p><strong>Date d'inscription :</strong> {{ client.date_creation.strftime('%d/%m/%Y') }}</p>
+                            </div>
+                        </div>
+                        
+                        {% if client.adresse or client.ville %}
+                        <hr>
+                        <h5><i class="fas fa-map-marker-alt mr-2"></i>Adresse</h5>
+                        <p>
+                            {% if client.adresse %}{{ client.adresse }}<br>{% endif %}
+                            {% if client.code_postal or client.ville %}
+                                {{ client.code_postal }} {{ client.ville }}
+                                {% if client.pays %}, {{ client.pays }}{% endif %}
+                            {% endif %}
+                        </p>
+                        {% endif %}
+                        
+                        {% if client.budget_min or client.budget_max %}
+                        <hr>
+                        <h5><i class="fas fa-money-bill mr-2"></i>Budget</h5>
+                        <p>
+                            {% if client.budget_min and client.budget_max %}
+                                {{ "{:,.0f}".format(client.budget_min) }} FCFA - {{ "{:,.0f}".format(client.budget_max) }} FCFA
+                            {% elif client.budget_min %}
+                                À partir de {{ "{:,.0f}".format(client.budget_min) }} FCFA
+                            {% elif client.budget_max %}
+                                Jusqu'à {{ "{:,.0f}".format(client.budget_max) }} FCFA
+                            {% endif %}
+                        </p>
+                        {% endif %}
+                        
+                        {% if client.preferences %}
+                        <hr>
+                        <h5><i class="fas fa-heart mr-2"></i>Préférences</h5>
+                        <p>{{ client.preferences }}</p>
+                        {% endif %}
+                        
+                        {% if client.notes %}
+                        <hr>
+                        <h5><i class="fas fa-sticky-note mr-2"></i>Notes</h5>
+                        <p>{{ client.notes }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <!-- Actions rapides -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-bolt mr-2"></i>
+                            Actions rapides
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <a href="{{ url_for('contrats.ajouter', client_id=client.id) }}" class="btn btn-primary btn-block mb-2">
+                            <i class="fas fa-file-signature mr-2"></i>Créer un contrat
+                        </a>
+                        <a href="{{ url_for('biens.index') }}" class="btn btn-success btn-block mb-2">
+                            <i class="fas fa-calendar-plus mr-2"></i>Planifier une visite
+                        </a>
+                        <a href="mailto:{{ client.email }}" class="btn btn-info btn-block mb-2">
+                            <i class="fas fa-envelope mr-2"></i>Envoyer un email
+                        </a>
+                        <a href="tel:{{ client.telephone }}" class="btn btn-secondary btn-block">
+                            <i class="fas fa-phone mr-2"></i>Appeler
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Statistiques -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-chart-bar mr-2"></i>
+                            Statistiques
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Demandes de visite :</strong> {{ demandes_visite.total }}</p>
+                        <p><strong>Contrats signés :</strong> {{ contrats.total }}</p>
+                        <p><strong>Dernière activité :</strong> 
+                            {% if client.date_modification %}
+                                {{ client.date_modification.strftime('%d/%m/%Y') }}
+                            {% else %}
+                                {{ client.date_creation.strftime('%d/%m/%Y') }}
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Demandes de visite -->
+        {% if demandes_visite.items %}
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-calendar-check mr-2"></i>
+                            Demandes de visite
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Bien</th>
+                                        <th>Date souhaitée</th>
+                                        <th>Statut</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for demande in demandes_visite.items %}
+                                    <tr>
+                                        <td>
+                                            {% if demande.bien %}
+                                                <strong>{{ demande.bien.titre }}</strong><br>
+                                                <small>{{ demande.bien.ville }}</small>
+                                            {% else %}
+                                                <span class="text-muted">Bien supprimé</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {{ demande.get_date_display() }}<br>
+                                            <small>{{ demande.get_heure_display() }}</small>
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-{{ demande.get_status_badge_class() }}">
+                                                {{ demande.statut.value.title() }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {% if demande.bien %}
+                                            <a href="{{ url_for('biens.detail', bien_id=demande.bien.id) }}" class="btn btn-sm btn-info">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Contrats -->
+        {% if contrats.items %}
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-file-contract mr-2"></i>
+                            Contrats
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Référence</th>
+                                        <th>Bien</th>
+                                        <th>Type</th>
+                                        <th>Date de signature</th>
+                                        <th>Montant</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for contrat in contrats.items %}
+                                    <tr>
+                                        <td><strong>{{ contrat.reference }}</strong></td>
+                                        <td>
+                                            {% if contrat.bien %}
+                                                {{ contrat.bien.titre }}<br>
+                                                <small>{{ contrat.bien.ville }}</small>
+                                            {% else %}
+                                                <span class="text-muted">Bien supprimé</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-{{ 'primary' if contrat.type_contrat.value == 'vente' else 'success' }}">
+                                                {{ contrat.type_contrat.value.title() }}
+                                            </span>
+                                        </td>
+                                        <td>{{ contrat.date_signature.strftime('%d/%m/%Y') if contrat.date_signature else 'Non signé' }}</td>
+                                        <td>{{ "{:,.0f}".format(contrat.montant) }} FCFA</td>
+                                        <td>
+                                            <a href="{{ url_for('contrats.detail', contrat_id=contrat.id) }}" class="btn btn-sm btn-info">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %} 

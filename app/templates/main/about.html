@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}À propos - ImmoPilot{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active">À propos</li>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h2>À propos d'ImmoPilot</h2>
+                    <p class="lead">ImmoPilot est votre partenaire de confiance pour tous vos projets immobiliers.</p>
+                    
+                    <h4>Notre mission</h4>
+                    <p>Depuis notre création, nous nous engageons à accompagner nos clients dans la réalisation de leurs projets immobiliers avec professionnalisme, transparence et efficacité. Notre équipe d'experts qualifiés met son savoir-faire à votre service pour vous offrir les meilleures opportunités du marché.</p>
+                    
+                    <h4>Nos valeurs</h4>
+                    <ul>
+                        <li><strong>Confiance :</strong> Nous construisons des relations durables basées sur la confiance mutuelle.</li>
+                        <li><strong>Expertise :</strong> Notre équipe dispose d'une expertise approfondie du marché immobilier.</li>
+                        <li><strong>Transparence :</strong> Nous vous informons clairement à chaque étape de votre projet.</li>
+                        <li><strong>Innovation :</strong> Nous utilisons les technologies les plus avancées pour optimiser votre expérience.</li>
+                    </ul>
+                    
+                    <h4>Nos services</h4>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5><i class="fas fa-home text-primary"></i> Achat</h5>
+                            <p>Accompagnement personnalisé pour trouver la maison de vos rêves.</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5><i class="fas fa-key text-primary"></i> Location</h5>
+                            <p>Large sélection de biens à louer pour tous les budgets.</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5><i class="fas fa-chart-line text-primary"></i> Investissement</h5>
+                            <p>Conseils d'experts pour optimiser votre patrimoine immobilier.</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5><i class="fas fa-handshake text-primary"></i> Vente</h5>
+                            <p>Estimation et accompagnement pour la vente de votre bien.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Nos chiffres</h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-users fa-3x text-primary mb-2"></i>
+                        <h4>500+</h4>
+                        <p class="text-muted">Clients satisfaits</p>
+                    </div>
+                    <div class="text-center mb-4">
+                        <i class="fas fa-home fa-3x text-primary mb-2"></i>
+                        <h4>1000+</h4>
+                        <p class="text-muted">Biens gérés</p>
+                    </div>
+                    <div class="text-center mb-4">
+                        <i class="fas fa-calendar-check fa-3x text-primary mb-2"></i>
+                        <h4>10+</h4>
+                        <p class="text-muted">Années d'expérience</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="card-title">Contact rapide</h5>
+                </div>
+                <div class="card-body">
+                    <p><i class="fas fa-phone text-primary"></i> +33 1 23 45 67 89</p>
+                    <p><i class="fas fa-envelope text-primary"></i> contact@immopilot.fr</p>
+                    <p><i class="fas fa-map-marker-alt text-primary"></i> 123 Rue de l'Immobilier<br>75001 Paris, France</p>
+                    <a href="{{ url_for('main.contact') }}" class="btn btn-primary w-100">Nous contacter</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

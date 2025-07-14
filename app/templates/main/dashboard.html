@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+
+{% block title %}Tableau de bord - ImmoPilot{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Tableau de bord</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}">Accueil</a></li>
+                    <li class="breadcrumb-item active">Dashboard</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <!-- Statistiques -->
+        <div class="row">
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-info">
+                    <div class="inner">
+                        <h3>{{ stats_biens.disponibles }}</h3>
+                        <p>Biens disponibles</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    <a href="{{ url_for('biens.index') }}" class="small-box-footer">
+                        Voir tous les biens <i class="fas fa-arrow-circle-right"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-success">
+                    <div class="inner">
+                        <h3>{{ stats_clients.total }}</h3>
+                        <p>Clients</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <a href="{{ url_for('clients.index') }}" class="small-box-footer">
+                        Voir tous les clients <i class="fas fa-arrow-circle-right"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-warning">
+                    <div class="inner">
+                        <h3>{{ stats_contrats.en_cours }}</h3>
+                        <p>Contrats en cours</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fas fa-file-contract"></i>
+                    </div>
+                    <a href="{{ url_for('contrats.index') }}" class="small-box-footer">
+                        Voir tous les contrats <i class="fas fa-arrow-circle-right"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-danger">
+                    <div class="inner">
+                        <h3>{{ demandes_en_attente|length }}</h3>
+                        <p>Visites en attente</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <a href="{{ url_for('admin_bp.visites') }}" class="small-box-footer">
+                        Voir les visites <i class="fas fa-arrow-circle-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions rapides -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-plus-circle mr-2"></i>
+                            Actions rapides
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-6">
+                                <a href="{{ url_for('biens.ajouter') }}" class="btn btn-primary btn-block mb-2">
+                                    <i class="fas fa-plus mr-2"></i>Ajouter un bien
+                                </a>
+                            </div>
+                            <div class="col-6">
+                                <a href="{{ url_for('clients.ajouter') }}" class="btn btn-success btn-block mb-2">
+                                    <i class="fas fa-user-plus mr-2"></i>Ajouter un client
+                                </a>
+                            </div>
+                            <div class="col-6">
+                                <a href="{{ url_for('contrats.ajouter') }}" class="btn btn-warning btn-block mb-2">
+                                    <i class="fas fa-file-signature mr-2"></i>Créer un contrat
+                                </a>
+                            </div>
+                            <div class="col-6">
+                                <a href="{{ url_for('biens.index') }}" class="btn btn-info btn-block mb-2">
+                                    <i class="fas fa-calendar-plus mr-2"></i>Planifier une visite
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-calendar-day mr-2"></i>
+                            Visites du jour
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        {% if visites_du_jour %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Contact</th>
+                                        <th>Bien</th>
+                                        <th>Heure</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for visite in visites_du_jour[:5] %}
+                                    <tr>
+                                        <td>{{ visite.nom_contact }}</td>
+                                        <td>{{ visite.bien.titre if visite.bien else 'Bien supprimé' }}</td>
+                                        <td>{{ visite.get_heure_display() }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <p class="text-muted">Aucune visite prévue aujourd'hui</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mes biens récents -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-home mr-2"></i>
+                            Mes biens récents
+                        </h3>
+                        <div class="card-tools">
+                            <a href="{{ url_for('biens.mes_biens') }}" class="btn btn-sm btn-primary">
+                                Voir tous mes biens
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body table-responsive p-0">
+                        {% if biens_agent.items %}
+                        <table class="table table-hover text-nowrap">
+                            <thead>
+                                <tr>
+                                    <th>Référence</th>
+                                    <th>Titre</th>
+                                    <th>Type</th>
+                                    <th>Ville</th>
+                                    <th>Prix</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for bien in biens_agent.items %}
+                                <tr>
+                                    <td>{{ bien.reference }}</td>
+                                    <td>{{ bien.titre }}</td>
+                                    <td>
+                                        <span class="badge badge-{{ 'primary' if bien.type_transaction.value == 'vente' else 'success' }}">
+                                            {{ bien.type_transaction.value.title() }}
+                                        </span>
+                                    </td>
+                                    <td>{{ bien.ville }}</td>
+                                    <td>{{ bien.get_price_display() }}</td>
+                                    <td>
+                                        <span class="badge badge-{{ 'success' if bien.disponible else 'danger' }}">
+                                            {{ 'Disponible' if bien.disponible else 'Indisponible' }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('biens.detail', bien_id=bien.id) }}" class="btn btn-sm btn-info">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{{ url_for('biens.modifier', bien_id=bien.id) }}" class="btn btn-sm btn-warning">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-home fa-2x text-muted"></i>
+                            <p class="mt-2">Aucun bien ajouté pour le moment</p>
+                            <a href="{{ url_for('biens.ajouter') }}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Ajouter un bien
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Actualiser les statistiques toutes les 30 secondes
+setInterval(function() {
+    fetch('/api/stats')
+        .then(response => response.json())
+        .then(data => {
+            // Mettre à jour les statistiques
+            document.querySelector('.bg-info .inner h3').textContent = data.total_biens;
+            document.querySelector('.bg-success .inner h3').textContent = data.total_clients;
+            document.querySelector('.bg-warning .inner h3').textContent = data.contrats_en_cours;
+            document.querySelector('.bg-danger .inner h3').textContent = data.visites_pending;
+        });
+}, 30000);
+</script>
+{% endblock %} 

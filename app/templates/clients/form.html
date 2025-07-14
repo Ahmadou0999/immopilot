@@ -1,0 +1,278 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - ImmoPilot{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">{{ title }}</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}">Accueil</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('clients.index') }}">Clients</a></li>
+                    <li class="breadcrumb-item active">{{ title }}</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-user-plus mr-2"></i>
+                            {{ title }}
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST">
+                            {{ form.hidden_tag() }}
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ form.nom.label(class="form-label") }}
+                                        {{ form.nom(class="form-control", required=true) }}
+                                        {% if form.nom.errors %}
+                                            <div class="text-danger">
+                                                {% for error in form.nom.errors %}
+                                                    <small>{{ error }}</small>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ form.prenom.label(class="form-label") }}
+                                        {{ form.prenom(class="form-control", required=true) }}
+                                        {% if form.prenom.errors %}
+                                            <div class="text-danger">
+                                                {% for error in form.prenom.errors %}
+                                                    <small>{{ error }}</small>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ form.email.label(class="form-label") }}
+                                        {{ form.email(class="form-control", required=true) }}
+                                        {% if form.email.errors %}
+                                            <div class="text-danger">
+                                                {% for error in form.email.errors %}
+                                                    <small>{{ error }}</small>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ form.telephone.label(class="form-label") }}
+                                        {{ form.telephone(class="form-control", required=true) }}
+                                        {% if form.telephone.errors %}
+                                            <div class="text-danger">
+                                                {% for error in form.telephone.errors %}
+                                                    <small>{{ error }}</small>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ form.date_naissance.label(class="form-label") }}
+                                        {{ form.date_naissance(class="form-control") }}
+                                        {% if form.date_naissance.errors %}
+                                            <div class="text-danger">
+                                                {% for error in form.date_naissance.errors %}
+                                                    <small>{{ error }}</small>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ form.profession.label(class="form-label") }}
+                                        {{ form.profession(class="form-control") }}
+                                        {% if form.profession.errors %}
+                                            <div class="text-danger">
+                                                {% for error in form.profession.errors %}
+                                                    <small>{{ error }}</small>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                {{ form.adresse.label(class="form-label") }}
+                                {{ form.adresse(class="form-control", rows=3) }}
+                                {% if form.adresse.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.adresse.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        {{ form.code_postal.label(class="form-label") }}
+                                        {{ form.code_postal(class="form-control") }}
+                                        {% if form.code_postal.errors %}
+                                            <div class="text-danger">
+                                                {% for error in form.code_postal.errors %}
+                                                    <small>{{ error }}</small>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        {{ form.ville.label(class="form-label") }}
+                                        {{ form.ville(class="form-control") }}
+                                        {% if form.ville.errors %}
+                                            <div class="text-danger">
+                                                {% for error in form.ville.errors %}
+                                                    <small>{{ error }}</small>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        {{ form.pays.label(class="form-label") }}
+                                        {{ form.pays(class="form-control") }}
+                                        {% if form.pays.errors %}
+                                            <div class="text-danger">
+                                                {% for error in form.pays.errors %}
+                                                    <small>{{ error }}</small>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ form.budget_min.label(class="form-label") }}
+                                        {{ form.budget_min(class="form-control") }}
+                                        {% if form.budget_min.errors %}
+                                            <div class="text-danger">
+                                                {% for error in form.budget_min.errors %}
+                                                    <small>{{ error }}</small>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ form.budget_max.label(class="form-label") }}
+                                        {{ form.budget_max(class="form-control") }}
+                                        {% if form.budget_max.errors %}
+                                            <div class="text-danger">
+                                                {% for error in form.budget_max.errors %}
+                                                    <small>{{ error }}</small>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                {{ form.preferences.label(class="form-label") }}
+                                {{ form.preferences(class="form-control", rows=4) }}
+                                {% if form.preferences.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.preferences.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="form-group">
+                                {{ form.notes.label(class="form-label") }}
+                                {{ form.notes(class="form-control", rows=4) }}
+                                {% if form.notes.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.notes.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save mr-2"></i>
+                                    Enregistrer
+                                </button>
+                                <a href="{{ url_for('clients.index') }}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left mr-2"></i>
+                                    Annuler
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-info-circle mr-2"></i>
+                            Informations
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Champs obligatoires :</strong></p>
+                        <ul>
+                            <li>Nom</li>
+                            <li>Prénom</li>
+                            <li>Email</li>
+                            <li>Téléphone</li>
+                        </ul>
+                        <p><strong>Champs optionnels :</strong></p>
+                        <ul>
+                            <li>Date de naissance</li>
+                            <li>Profession</li>
+                            <li>Adresse complète</li>
+                            <li>Budget</li>
+                            <li>Préférences</li>
+                            <li>Notes</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %} 

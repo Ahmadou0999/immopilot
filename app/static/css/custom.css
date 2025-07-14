@@ -1,0 +1,299 @@
+/* ImmoPilot - Custom Styles */
+
+/* Login page styles */
+.login-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-box {
+    width: 360px;
+    margin: 0 auto;
+}
+
+.login-logo a {
+    color: white;
+    font-size: 2rem;
+    text-decoration: none;
+    text-align: center;
+    display: block;
+    margin-bottom: 2rem;
+}
+
+.login-card-body {
+    padding: 2rem;
+}
+
+/* Dashboard statistics */
+.small-box {
+    position: relative;
+    display: block;
+    margin-bottom: 20px;
+    box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2);
+}
+
+.small-box > .inner {
+    padding: 10px;
+}
+
+.small-box h3 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin: 0 0 10px 0;
+    white-space: nowrap;
+    padding: 0;
+}
+
+.small-box p {
+    font-size: 1rem;
+}
+
+.small-box > .icon {
+    color: rgba(0,0,0,.15);
+    z-index: 0;
+}
+
+.small-box > .icon > i {
+    font-size: 70px;
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    transition: transform .3s linear;
+}
+
+.small-box:hover > .icon > i {
+    transform: scale(1.1);
+}
+
+.small-box > .small-box-footer {
+    position: relative;
+    text-align: center;
+    padding: 3px 0;
+    color: rgba(255,255,255,.8);
+    display: block;
+    z-index: 10;
+    background: rgba(0,0,0,.1);
+    text-decoration: none;
+}
+
+.small-box > .small-box-footer:hover {
+    color: #fff;
+    background: rgba(0,0,0,.15);
+}
+
+/* Timeline styles */
+.timeline {
+    position: relative;
+    margin: 0 0 30px 0;
+    padding: 0;
+    list-style: none;
+}
+
+.timeline:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: #ddd;
+    left: 31px;
+    margin: 0;
+    border-radius: 2px;
+}
+
+.timeline > li {
+    position: relative;
+    margin-right: 10px;
+    margin-bottom: 15px;
+}
+
+.timeline > li > .timeline-item {
+    box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2);
+    border-radius: 0.25rem;
+    background-color: #fff;
+    color: #495057;
+    margin-left: 60px;
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-right: 0;
+    position: relative;
+}
+
+.timeline > li > .timeline-item > .time {
+    color: #999;
+    float: right;
+    padding: 10px;
+    font-size: 12px;
+}
+
+.timeline > li > .timeline-item > .timeline-header {
+    margin: 0;
+    color: #495057;
+    border-bottom: 1px solid rgba(0,0,0,.125);
+    padding: 10px;
+    font-size: 16px;
+    line-height: 1.1;
+}
+
+.timeline > li > .timeline-item > .timeline-body,
+.timeline > li > .timeline-item > .timeline-footer {
+    padding: 10px;
+}
+
+.timeline > li > .fa,
+.timeline > li > .fas,
+.timeline > li > .far,
+.timeline > li > .fab,
+.timeline > li > .glyphicon {
+    width: 30px;
+    height: 30px;
+    font-size: 15px;
+    line-height: 30px;
+    position: absolute;
+    color: #666;
+    background: #dadada;
+    border-radius: 50%;
+    text-align: center;
+    left: 18px;
+    top: 0;
+}
+
+/* Property cards */
+.property-card {
+    transition: transform 0.2s ease-in-out;
+}
+
+.property-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.property-image {
+    height: 200px;
+    background-size: cover;
+    background-position: center;
+    background-color: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Form improvements */
+.form-control:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.btn-group .btn.active {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: white;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+    .login-box {
+        width: 90%;
+        max-width: 360px;
+    }
+    
+    .small-box h3 {
+        font-size: 1.8rem;
+    }
+    
+    .timeline:before {
+        left: 15px;
+    }
+    
+    .timeline > li > .fa,
+    .timeline > li > .fas,
+    .timeline > li > .far,
+    .timeline > li > .fab,
+    .timeline > li > .glyphicon {
+        left: 2px;
+    }
+    
+    .timeline > li > .timeline-item {
+        margin-left: 40px;
+    }
+}
+
+/* Loading spinner */
+.loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255,255,255,.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Notification styles */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+}
+
+.toast {
+    background: white;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    margin-bottom: 10px;
+    min-width: 300px;
+}
+
+.toast-header {
+    background: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    padding: 0.5rem 1rem;
+    border-radius: 4px 4px 0 0;
+}
+
+.toast-body {
+    padding: 1rem;
+}
+
+/* Custom badges */
+.badge-custom {
+    font-size: 0.75em;
+    padding: 0.25em 0.6em;
+    border-radius: 0.25rem;
+}
+
+/* Search highlight */
+.highlight {
+    background-color: #fff3cd;
+    padding: 2px;
+    border-radius: 2px;
+}
+
+/* Print styles */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    .card {
+        border: none !important;
+        box-shadow: none !important;
+    }
+    
+    .table {
+        border-collapse: collapse !important;
+    }
+    
+    .table td,
+    .table th {
+        border: 1px solid #dee2e6 !important;
+    }
+} 

@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+
+{% block title %}Contrats - ImmoPilot{% endblock %}
+
+{% block page_title %}Gestion des contrats{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active">Contrats</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-file-contract mr-2"></i>
+                    Liste des contrats
+                </h3>
+                <div class="card-tools">
+                    <a href="{{ url_for('contrats.ajouter') }}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-plus mr-2"></i>Nouveau contrat
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                {% if contrats.items %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Référence</th>
+                                <th>Type</th>
+                                <th>Client</th>
+                                <th>Bien</th>
+                                <th>Montant</th>
+                                <th>Date début</th>
+                                <th>Date fin</th>
+                                <th>Statut</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for contrat in contrats.items %}
+                            <tr>
+                                <td>
+                                    <strong>{{ contrat.reference }}</strong>
+                                </td>
+                                <td>
+                                    <span class="badge badge-{{ 'primary' if contrat.type_contrat.value == 'vente' else 'success' }}">
+                                        {{ contrat.type_contrat.value.title() }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if contrat.client %}
+                                    <a href="{{ url_for('clients.detail', client_id=contrat.client.id) }}">
+                                        {{ contrat.client.get_full_name() }}
+                                    </a>
+                                    {% else %}
+                                    <span class="text-muted">Client supprimé</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if contrat.bien %}
+                                    <a href="{{ url_for('biens.detail', bien_id=contrat.bien.id) }}">
+                                        {{ contrat.bien.titre }}
+                                    </a>
+                                    {% else %}
+                                    <span class="text-muted">Bien supprimé</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <strong class="text-primary">{{ contrat.get_montant_display() }}</strong>
+                                </td>
+                                <td>{{ contrat.get_date_debut_display() }}</td>
+                                <td>{{ contrat.get_date_fin_display() }}</td>
+                                <td>
+                                    <span class="badge {{ contrat.get_status_badge_class() }}">
+                                        {{ contrat.get_status_display() }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a href="{{ url_for('contrats.detail', contrat_id=contrat.id) }}" class="btn btn-sm btn-info" title="Voir détails">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{{ url_for('contrats.modifier', contrat_id=contrat.id) }}" class="btn btn-sm btn-warning" title="Modifier">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-danger" title="Supprimer" 
+                                                onclick="confirmDelete('{{ contrat.reference }}', '{{ url_for('contrats.supprimer', contrat_id=contrat.id) }}')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                {% if contrats.pages > 1 %}
+                <nav aria-label="Pagination des contrats">
+                    <ul class="pagination justify-content-center">
+                        {% if contrats.has_prev %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('contrats.index', page=contrats.prev_num) }}">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                        {% endif %}
+                        
+                        {% for page_num in contrats.iter_pages() %}
+                            {% if page_num %}
+                                {% if page_num != contrats.page %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('contrats.index', page=page_num) }}">{{ page_num }}</a>
+                                </li>
+                                {% else %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ page_num }}</span>
+                                </li>
+                                {% endif %}
+                            {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if contrats.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('contrats.index', page=contrats.next_num) }}">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+                
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-file-contract fa-3x text-muted mb-3"></i>
+                    <h4 class="text-muted">Aucun contrat trouvé</h4>
+                    <p class="text-muted">Commencez par créer votre premier contrat</p>
+                    <a href="{{ url_for('contrats.ajouter') }}" class="btn btn-primary">
+                        <i class="fas fa-plus mr-2"></i>Créer un contrat
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmation de suppression -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmer la suppression</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Êtes-vous sûr de vouloir supprimer le contrat <strong id="contratReference"></strong> ?</p>
+                <p class="text-danger"><small>Cette action est irréversible.</small></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <form id="deleteForm" method="POST" style="display: inline;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <button type="submit" class="btn btn-danger">Supprimer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function confirmDelete(reference, url) {
+    document.getElementById('contratReference').textContent = reference;
+    document.getElementById('deleteForm').action = url;
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+</script>
+{% endblock %} 

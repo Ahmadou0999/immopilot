@@ -1,0 +1,248 @@
+{% extends "base.html" %}
+
+{% block title %}Contrat {{ contrat.numero }} - ImmoPilot{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Contrat {{ contrat.numero }}</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}">Accueil</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('contrats.index') }}">Contrats</a></li>
+                    <li class="breadcrumb-item active">{{ contrat.numero }}</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Informations principales -->
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-file-contract mr-2"></i>
+                            Détails du contrat
+                        </h3>
+                        <div class="card-tools">
+                            <span class="badge {{ contrat.get_status_badge_class() }} ml-2">
+                                {{ contrat.statut.value.title() }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5>Informations générales</h5>
+                                <table class="table table-borderless">
+                                    <tr>
+                                        <td><strong>Numéro :</strong></td>
+                                        <td>{{ contrat.numero }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Type :</strong></td>
+                                        <td>
+                                            <span class="badge badge-{{ 'primary' if contrat.type_contrat.value == 'vente' else 'success' }}">
+                                                {{ contrat.type_contrat.value.title() }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Montant :</strong></td>
+                                        <td><strong class="text-primary">{{ contrat.get_montant_display() }}</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Frais d'agence :</strong></td>
+                                        <td>{{ "{:,.0f}".format(contrat.frais_agence) if contrat.frais_agence else 'Non renseigné' }} FCFA</td>
+                                    </tr>
+                                    {% if contrat.type_contrat.value == 'location' %}
+                                    <tr>
+                                        <td><strong>Charges :</strong></td>
+                                        <td>{{ "{:,.0f}".format(contrat.charges) if contrat.charges else 'Non renseigné' }} FCFA</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Caution :</strong></td>
+                                        <td>{{ "{:,.0f}".format(contrat.caution) if contrat.caution else 'Non renseigné' }} FCFA</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Durée du bail :</strong></td>
+                                        <td>{{ contrat.get_duree_display() }}</td>
+                                    </tr>
+                                    {% endif %}
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <h5>Dates importantes</h5>
+                                <table class="table table-borderless">
+                                    <tr>
+                                        <td><strong>Date de création :</strong></td>
+                                        <td>{{ contrat.date_creation.strftime('%d/%m/%Y') }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Date de signature :</strong></td>
+                                        <td>{{ contrat.date_signature.strftime('%d/%m/%Y') if contrat.date_signature else 'Non signé' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Date d'entrée :</strong></td>
+                                        <td>{{ contrat.date_entree.strftime('%d/%m/%Y') if contrat.date_entree else 'Non renseignée' }}</td>
+                                    </tr>
+                                    {% if contrat.type_contrat.value == 'location' %}
+                                    <tr>
+                                        <td><strong>Date de sortie :</strong></td>
+                                        <td>{{ contrat.date_sortie.strftime('%d/%m/%Y') if contrat.date_sortie else 'Non renseignée' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Date de fin de bail :</strong></td>
+                                        <td>{{ contrat.date_fin_bail.strftime('%d/%m/%Y') if contrat.date_fin_bail else 'Non renseignée' }}</td>
+                                    </tr>
+                                    {% endif %}
+                                </table>
+                            </div>
+                        </div>
+
+                        {% if contrat.conditions_particulieres %}
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <h5>Conditions particulières</h5>
+                                <div class="alert alert-info">
+                                    {{ contrat.conditions_particulieres|replace('\n', '<br>')|safe }}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if contrat.notes %}
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <h5>Notes</h5>
+                                <div class="alert alert-warning">
+                                    {{ contrat.notes|replace('\n', '<br>')|safe }}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions et informations liées -->
+            <div class="col-md-4">
+                <!-- Actions rapides -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-bolt mr-2"></i>
+                            Actions
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        {% if contrat.statut.value == 'en_cours' %}
+                        <a href="{{ url_for('contrats.modifier', contrat_id=contrat.id) }}" class="btn btn-warning btn-block mb-2">
+                            <i class="fas fa-edit mr-2"></i>Modifier
+                        </a>
+                        <form method="POST" action="{{ url_for('contrats.signer', contrat_id=contrat.id) }}" class="d-inline">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                            <button type="submit" class="btn btn-success btn-block mb-2" onclick="return confirm('Marquer ce contrat comme signé ?')">
+                                <i class="fas fa-signature mr-2"></i>Marquer comme signé
+                            </button>
+                        </form>
+                        <form method="POST" action="{{ url_for('contrats.annuler', contrat_id=contrat.id) }}" class="d-inline">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                            <button type="submit" class="btn btn-danger btn-block mb-2" onclick="return confirm('Annuler ce contrat ?')">
+                                <i class="fas fa-times mr-2"></i>Annuler
+                            </button>
+                        </form>
+                        {% elif contrat.statut.value == 'signe' %}
+                        <form method="POST" action="{{ url_for('contrats.terminer', contrat_id=contrat.id) }}" class="d-inline">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                            <button type="submit" class="btn btn-secondary btn-block mb-2" onclick="return confirm('Terminer ce contrat ?')">
+                                <i class="fas fa-check-double mr-2"></i>Terminer
+                            </button>
+                        </form>
+                        {% endif %}
+                        
+                        <a href="{{ url_for('contrats.index') }}" class="btn btn-info btn-block">
+                            <i class="fas fa-arrow-left mr-2"></i>Retour à la liste
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Informations sur le client -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-user mr-2"></i>
+                            Client
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        {% if contrat.client %}
+                        <h6>{{ contrat.client.get_full_name() }}</h6>
+                        <p class="mb-1"><i class="fas fa-envelope mr-2"></i>{{ contrat.client.email }}</p>
+                        <p class="mb-1"><i class="fas fa-phone mr-2"></i>{{ contrat.client.telephone }}</p>
+                        <p class="mb-0"><i class="fas fa-map-marker-alt mr-2"></i>{{ contrat.client.ville }}</p>
+                        <hr>
+                        <a href="{{ url_for('clients.detail', client_id=contrat.client.id) }}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-eye mr-1"></i>Voir le client
+                        </a>
+                        {% else %}
+                        <p class="text-muted">Client supprimé</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Informations sur le bien -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-home mr-2"></i>
+                            Bien
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        {% if contrat.bien %}
+                        <h6>{{ contrat.bien.titre }}</h6>
+                        <p class="mb-1"><i class="fas fa-map-marker-alt mr-2"></i>{{ contrat.bien.adresse }}</p>
+                        <p class="mb-1"><i class="fas fa-city mr-2"></i>{{ contrat.bien.ville }}</p>
+                        <p class="mb-1"><i class="fas fa-ruler-combined mr-2"></i>{{ contrat.bien.get_surface_display() }}</p>
+                        <p class="mb-0"><i class="fas fa-tag mr-2"></i>{{ contrat.bien.get_price_display() }}</p>
+                        <hr>
+                        <a href="{{ url_for('biens.detail', bien_id=contrat.bien.id) }}" class="btn btn-sm btn-outline-success">
+                            <i class="fas fa-eye mr-1"></i>Voir le bien
+                        </a>
+                        {% else %}
+                        <p class="text-muted">Bien supprimé</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Informations sur l'agent -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-user-tie mr-2"></i>
+                            Agent
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        {% if contrat.agent %}
+                        <h6>{{ contrat.agent.get_full_name() }}</h6>
+                        <p class="mb-1"><i class="fas fa-envelope mr-2"></i>{{ contrat.agent.email }}</p>
+                        <p class="mb-0"><i class="fas fa-phone mr-2"></i>{{ contrat.agent.telephone }}</p>
+                        {% else %}
+                        <p class="text-muted">Agent supprimé</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %} 

@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Prospects - ImmoPilot{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Prospects</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}">Accueil</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('clients.index') }}">Clients</a></li>
+                    <li class="breadcrumb-item active">Prospects</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-user-clock mr-2"></i>
+                    Liste des prospects ({{ prospects.total }})
+                </h3>
+            </div>
+            <div class="card-body">
+                {% if prospects.items %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Nom</th>
+                                <th>Contact</th>
+                                <th>Localisation</th>
+                                <th>Budget</th>
+                                <th>Date d'inscription</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for client in prospects.items %}
+                            <tr>
+                                <td>
+                                    <strong>{{ client.get_full_name() }}</strong>
+                                    {% if client.profession %}
+                                    <br><small class="text-muted">{{ client.profession }}</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <i class="fas fa-envelope mr-1"></i>{{ client.email }}<br>
+                                    <i class="fas fa-phone mr-1"></i>{{ client.telephone }}
+                                </td>
+                                <td>
+                                    {% if client.ville %}
+                                    <i class="fas fa-map-marker-alt mr-1"></i>{{ client.ville }}
+                                    {% if client.code_postal %}, {{ client.code_postal }}{% endif %}
+                                    {% else %}
+                                    <span class="text-muted">Non renseigné</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if client.budget_min or client.budget_max %}
+                                        {% if client.budget_min and client.budget_max %}
+                                            {{ "{:,.0f}".format(client.budget_min) }} FCFA - {{ "{:,.0f}".format(client.budget_max) }} FCFA
+                                        {% elif client.budget_min %}
+                                            À partir de {{ "{:,.0f}".format(client.budget_min) }} FCFA
+                                        {% elif client.budget_max %}
+                                            Jusqu'à {{ "{:,.0f}".format(client.budget_max) }} FCFA
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="text-muted">Non renseigné</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ client.date_creation.strftime('%d/%m/%Y') }}</td>
+                                                                            <td>
+                                                <div class="btn-group">
+                                                    <a href="{{ url_for('clients.detail', client_id=client.id) }}" class="btn btn-sm btn-info" title="Voir détails">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a href="{{ url_for('clients.modifier', client_id=client.id) }}" class="btn btn-sm btn-warning" title="Modifier">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    {% if current_user.is_authenticated %}
+                                                    <form method="POST" action="{{ url_for('clients.supprimer', client_id=client.id) }}" style="display: inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce prospect ?')">
+                                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                                        <button type="submit" class="btn btn-sm btn-danger" title="Supprimer">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                    {% endif %}
+                                                </div>
+                                            </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-user-clock fa-3x text-muted mb-3"></i>
+                    <h4 class="text-muted">Aucun prospect</h4>
+                    <p class="text-muted">Tous vos clients sont actifs</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %} 
