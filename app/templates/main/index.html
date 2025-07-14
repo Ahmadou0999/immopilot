@@ -1,155 +1,547 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Accueil - ImmoPilot</title>
 
-{% block title %}Accueil - ImmoPilot{% endblock %}
+    <!-- Google Font: Source Sans Pro -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Toastr -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    
+    <style>
+        body {
+            font-family: 'Source Sans Pro', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .navbar {
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: #667eea !important;
+        }
+        
+        .nav-link {
+            font-weight: 500;
+            color: #2c3e50 !important;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            color: #667eea !important;
+            transform: translateY(-1px);
+        }
+        
+        .btn-login {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            color: white;
+        }
+        
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 80vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2073&q=80') center/cover;
+            opacity: 0.3;
+            z-index: 1;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .hero-subtitle {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+        
+        .hero-description {
+            font-size: 1.1rem;
+            margin-bottom: 2.5rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+        
+        .cta-button {
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border-radius: 50px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+        
+        .property-card {
+            transition: all 0.3s ease;
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .property-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        
+        .property-image {
+            height: 250px;
+            object-fit: cover;
+            transition: all 0.3s ease;
+        }
+        
+        .property-card:hover .property-image {
+            transform: scale(1.05);
+        }
+        
+        .service-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border: none;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        .search-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-top: -50px;
+            position: relative;
+            z-index: 10;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 3rem;
+            text-align: center;
+            color: #2c3e50;
+        }
+        
+        .stats-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4rem 0;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .contact-section {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border-radius: 20px;
+            padding: 3rem;
+        }
+        
+        .footer {
+            background: #2c3e50;
+            color: white;
+            padding: 2rem 0;
+            margin-top: 4rem;
+        }
+    </style>
+</head>
 
-{% block content %}
-<!-- Hero Section -->
-<div class="hero-section bg-primary text-white py-5 mb-4">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-md-6">
-                <h1 class="display-4">ImmoPilot</h1>
-                <p class="lead">Votre partenaire de confiance pour tous vos projets immobiliers</p>
-                <p>Découvrez notre sélection de biens exceptionnels et bénéficiez de l'expertise de nos agents qualifiés.</p>
-                {% if not current_user.is_authenticated %}
-                <a href="{{ url_for('auth.login') }}" class="btn btn-light btn-lg">Se connecter</a>
-                {% else %}
-                <a href="{{ url_for('main.dashboard') }}" class="btn btn-light btn-lg">Accéder au dashboard</a>
-                {% endif %}
-            </div>
-            <div class="col-md-6 text-center">
-                <i class="fas fa-home fa-6x opacity-75"></i>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('main.index') }}">
+                <i class="fas fa-home"></i> ImmoPilot
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.index') }}">Accueil</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('biens.index') }}">Biens</a>
+                    </li>
+                    {% if current_user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.dashboard') }}">Dashboard</a>
+                    </li>
+                    {% endif %}
+                </ul>
+                
+                <ul class="navbar-nav">
+                    {% if current_user.is_authenticated %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user"></i> {{ current_user.get_full_name() }}
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('auth.profile') }}">Mon profil</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('auth.change_password') }}">Changer mot de passe</a></li>
+                            {% if current_user.is_admin %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ url_for('admin_bp.dashboard') }}">Administration</a></li>
+                            {% endif %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">Déconnexion</a></li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-login">
+                            <i class="fas fa-sign-in-alt"></i> Connexion
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
             </div>
         </div>
-    </div>
-</div>
+    </nav>
 
-<!-- Search Section -->
-<div class="container mb-5">
-    <div class="card">
-        <div class="card-body">
-            <h3 class="card-title text-center mb-4">Rechercher un bien</h3>
-            <form action="{{ url_for('main.search') }}" method="GET" class="row g-3">
-                <div class="col-md-4">
-                    <input type="text" name="q" class="form-control" placeholder="Rechercher par ville, type, prix..." value="{{ request.args.get('q', '') }}">
-                </div>
-                <div class="col-md-3">
-                    <select name="type" class="form-select">
-                        <option value="">Tous les types</option>
-                        <option value="appartement">Appartement</option>
-                        <option value="maison">Maison</option>
-                        <option value="terrain">Terrain</option>
-                        <option value="bureau">Bureau</option>
-                        <option value="commerce">Commerce</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <select name="transaction" class="form-select">
-                        <option value="">Toutes les transactions</option>
-                        <option value="vente">Vente</option>
-                        <option value="location">Location</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="fas fa-search"></i> Rechercher
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div style="position: fixed; top: 80px; right: 20px; z-index: 9999;">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
 
-<!-- Recent Properties -->
-{% if biens_recents %}
-<div class="container mb-5">
-    <h2 class="text-center mb-4">Nos derniers biens</h2>
-    <div class="row">
-        {% for bien in biens_recents %}
-        <div class="col-md-4 mb-4">
-            <div class="card h-100">
-                {% if bien.get_images_list() %}
-                <img src="{{ bien.get_images_list()[0] }}" class="card-img-top" alt="{{ bien.titre }}" style="height: 200px; object-fit: cover;">
-                {% else %}
-                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
-                    <i class="fas fa-home fa-3x text-muted"></i>
-                </div>
-                {% endif %}
-                <div class="card-body">
-                    <h5 class="card-title">{{ bien.titre }}</h5>
-                    <p class="card-text text-muted">{{ bien.ville }}, {{ bien.code_postal }}</p>
-                    <p class="card-text">
-                        {% if bien.prix %}
-                            <strong class="text-primary">{{ "{:,.0f}".format(bien.prix) }} FCFA</strong>
-                            {% if bien.type_transaction.value == 'location' %}/mois{% endif %}
+    <!-- Main Content -->
+    <main style="margin-top: 76px;">
+        <!-- Hero Section -->
+        <div class="hero-section">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-lg-6 hero-content">
+                        <h1 class="hero-title">Trouvez votre bien idéal</h1>
+                        <p class="hero-subtitle">Découvrez notre sélection exclusive de propriétés d'exception</p>
+                        <p class="hero-description">ImmoPilot vous accompagne dans tous vos projets immobiliers avec expertise et professionnalisme.</p>
+                        {% if not current_user.is_authenticated %}
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-light cta-button">
+                            <i class="fas fa-sign-in-alt mr-2"></i>Se connecter
+                        </a>
                         {% else %}
-                            <strong class="text-primary">Prix sur demande</strong>
+                        <a href="{{ url_for('main.dashboard') }}" class="btn btn-light cta-button">
+                            <i class="fas fa-tachometer-alt mr-2"></i>Accéder au dashboard
+                        </a>
                         {% endif %}
-                    </p>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span class="badge badge-{{ 'success' if bien.type_transaction.value == 'vente' else 'info' }}">
-                            {{ bien.type_transaction.value.title() }}
-                        </span>
-                        <span class="badge badge-secondary">{{ bien.type_bien.value.title() }}</span>
+                    </div>
+                    <div class="col-lg-6 text-center">
+                        <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2073&q=80" 
+                             alt="Luxury Home" class="img-fluid rounded" style="max-height: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
                     </div>
                 </div>
-                <div class="card-footer">
-                                                    <a href="{{ url_for('biens.detail', bien_id=bien.id) }}" class="btn btn-outline-primary btn-sm w-100">
-                                    Voir les détails
-                                </a>
-                </div>
             </div>
         </div>
-        {% endfor %}
-    </div>
-    <div class="text-center mt-4">
-        <a href="{{ url_for('main.search') }}" class="btn btn-primary">Voir tous nos biens</a>
-    </div>
-</div>
-{% endif %}
 
-<!-- Services Section -->
-<div class="container mb-5">
-    <h2 class="text-center mb-4">Nos services</h2>
-    <div class="row">
-        <div class="col-md-4 text-center mb-4">
-            <div class="card h-100">
-                <div class="card-body">
-                    <i class="fas fa-home fa-3x text-primary mb-3"></i>
-                    <h5 class="card-title">Achat</h5>
-                    <p class="card-text">Trouvez la maison de vos rêves avec notre expertise et notre accompagnement personnalisé.</p>
-                </div>
+        <!-- Search Section -->
+        <div class="container">
+            <div class="search-section text-white">
+                <h3 class="text-center mb-4">
+                    <i class="fas fa-search mr-2"></i>Rechercher votre bien idéal
+                </h3>
+                <form action="{{ url_for('biens.index') }}" method="GET" class="row g-3">
+                    <div class="col-lg-4">
+                        <input type="text" name="ville" class="form-control form-control-lg" placeholder="Ville, quartier..." value="{{ request.args.get('ville', '') }}">
+                    </div>
+                    <div class="col-lg-3">
+                        <select name="type_bien" class="form-select form-select-lg">
+                            <option value="">Type de bien</option>
+                            <option value="appartement">Appartement</option>
+                            <option value="maison">Maison</option>
+                            <option value="terrain">Terrain</option>
+                            <option value="bureau">Bureau</option>
+                            <option value="commerce">Commerce</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-3">
+                        <select name="type_transaction" class="form-select form-select-lg">
+                            <option value="">Type de transaction</option>
+                            <option value="vente">Vente</option>
+                            <option value="location">Location</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-2">
+                        <button type="submit" class="btn btn-light btn-lg w-100">
+                            <i class="fas fa-search"></i> Rechercher
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
-        <div class="col-md-4 text-center mb-4">
-            <div class="card h-100">
-                <div class="card-body">
-                    <i class="fas fa-key fa-3x text-primary mb-3"></i>
-                    <h5 class="card-title">Location</h5>
-                    <p class="card-text">Découvrez notre sélection de biens à louer pour tous les budgets et tous les besoins.</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 text-center mb-4">
-            <div class="card h-100">
-                <div class="card-body">
-                    <i class="fas fa-chart-line fa-3x text-primary mb-3"></i>
-                    <h5 class="card-title">Investissement</h5>
-                    <p class="card-text">Optimisez votre patrimoine avec nos conseils d'experts en investissement immobilier.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
-<!-- Contact Section -->
-<div class="container mb-5">
-    <div class="card bg-light">
-        <div class="card-body text-center">
-            <h3>Besoin d'aide ?</h3>
-            <p class="lead">Nos experts sont là pour vous accompagner dans tous vos projets immobiliers.</p>
-            <a href="{{ url_for('main.contact') }}" class="btn btn-primary btn-lg">Nous contacter</a>
+        <!-- Statistics Section -->
+        <section class="stats-section">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-3 stat-item">
+                        <div class="stat-number">500+</div>
+                        <div class="stat-label">Biens disponibles</div>
+                    </div>
+                    <div class="col-md-3 stat-item">
+                        <div class="stat-number">1000+</div>
+                        <div class="stat-label">Clients satisfaits</div>
+                    </div>
+                    <div class="col-md-3 stat-item">
+                        <div class="stat-number">50+</div>
+                        <div class="stat-label">Agents experts</div>
+                    </div>
+                    <div class="col-md-3 stat-item">
+                        <div class="stat-number">15</div>
+                        <div class="stat-label">Années d'expérience</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Featured Properties Section -->
+        <section class="py-5">
+            <div class="container">
+                <h2 class="section-title">Nos biens en vedette</h2>
+                <div class="row">
+                    <div class="col-lg-4 mb-4">
+                        <div class="card property-card">
+                            <img src="https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
+                                 class="card-img-top property-image" alt="Appartement Dakar">
+                            <div class="card-body">
+                                <h5 class="card-title">Appartement Dakar Plateau</h5>
+                                <p class="card-text">Magnifique appartement avec vue sur la mer, 3 chambres, 2 salles de bain, climatisation.</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="badge bg-primary">Vente</span>
+                                    <strong class="text-primary">295 000 000 FCFA</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 mb-4">
+                        <div class="card property-card">
+                            <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
+                                 class="card-img-top property-image" alt="Maison Almadies">
+                            <div class="card-body">
+                                <h5 class="card-title">Villa Almadies</h5>
+                                <p class="card-text">Villa moderne avec piscine, 4 chambres, jardin paysager, sécurité 24h/24.</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="badge bg-success">Location</span>
+                                    <strong class="text-success">1 440 000 FCFA/mois</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 mb-4">
+                        <div class="card property-card">
+                            <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
+                                 class="card-img-top property-image" alt="Appartement Mermoz">
+                            <div class="card-body">
+                                <h5 class="card-title">Appartement Mermoz</h5>
+                                <p class="card-text">Appartement rénové avec terrasse, 2 chambres, cuisine équipée, parking.</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="badge bg-primary">Vente</span>
+                                    <strong class="text-primary">249 000 000 FCFA</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center mt-4">
+                    <a href="{{ url_for('biens.index') }}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-building mr-2"></i>Voir tous nos biens
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Services Section -->
+        <section class="py-5 bg-light">
+            <div class="container">
+                <h2 class="section-title">Nos services</h2>
+                <div class="row">
+                    <div class="col-lg-4 mb-4">
+                        <div class="card service-card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-home fa-3x text-primary mb-3"></i>
+                                <h5 class="card-title">Achat & Vente</h5>
+                                <p class="card-text">Nous vous accompagnons dans tous vos projets d'achat et de vente immobilière avec expertise et transparence.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 mb-4">
+                        <div class="card service-card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-key fa-3x text-primary mb-3"></i>
+                                <h5 class="card-title">Location</h5>
+                                <p class="card-text">Trouvez le logement de vos rêves ou louez votre bien en toute sérénité avec notre équipe dédiée.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 mb-4">
+                        <div class="card service-card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-chart-line fa-3x text-primary mb-3"></i>
+                                <h5 class="card-title">Investissement</h5>
+                                <p class="card-text">Optimisez votre patrimoine immobilier avec nos conseils d'experts et notre accompagnement personnalisé.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section class="py-5">
+            <div class="container">
+                <div class="contact-section">
+                    <div class="row align-items-center">
+                        <div class="col-lg-8">
+                            <h3 class="mb-3">Prêt à réaliser votre projet immobilier ?</h3>
+                            <p class="mb-4">Notre équipe d'experts est là pour vous accompagner à chaque étape de votre projet.</p>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <i class="fas fa-phone me-2"></i>
+                                    <strong>+221 76 587 86 19</strong>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <i class="fas fa-envelope me-2"></i>
+                                    <strong>contact@immopilot.fr</strong>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 text-center">
+                            <a href="{{ url_for('main.contact') }}" class="btn btn-light btn-lg">
+                                <i class="fas fa-envelope mr-2"></i>Nous contacter
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5><i class="fas fa-home"></i> ImmoPilot</h5>
+                    <p>Votre partenaire de confiance pour tous vos projets immobiliers.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p>&copy; 2025 ImmoPilot. Tous droits réservés.</p>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
-{% endblock %} 
+    </footer>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Toastr -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    
+    <script>
+        // Configuration Toastr
+        toastr.options = {
+            "closeButton": true,
+            "debug": false,
+            "newestOnTop": false,
+            "progressBar": true,
+            "positionClass": "toast-top-right",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "300",
+            "hideDuration": "1000",
+            "timeOut": "5000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        };
+
+        // Afficher les messages flash avec Toastr
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    toastr.{{ 'error' if category == 'error' else category }}('{{ message }}');
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </script>
+</body>
+</html> 
